@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/BLBaylis/feedback-fast#readme",
   "dependencies": {
+    "cookie-session": "^1.3.3",
     "express": "^4.17.1",
     "mongoose": "^5.5.13",
     "passport": "^0.4.0",

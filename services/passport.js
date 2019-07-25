@@ -5,6 +5,15 @@ const keys = require("../config/keys");
 
 const User = mongoose.model("users");
 
+passport.serializeUser((userProfile, done) => {
+  const { id : recordID } = userProfile;
+  done(null, recordID);
+});
+
+passport.deserializeUser((recordID, done) => {
+  User.findById(recordID).then(recordID => done(null, recordID));
+});
+
 passport.use(
   new GoogleStrategy(
     {
@@ -14,14 +23,14 @@ passport.use(
     },
     (accessToken, refreshToken, profile, done) => {
       User.findOne({ googleID: profile.id })
-        .then(userExists => {
-          if (userExists) {
+        .then(userInfo => {
+          if (userInfo) {
             console.log("user found");
-            done(null, existingUser);
+            done(null, userInfo);
           } else {
             new User({ googleID: profile.id })
               .save()
-              .then(newuser => done(null, user));
+              .then(newUser => done(null, newUser));
           }
         })
         .catch(console.error);
