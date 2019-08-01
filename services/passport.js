@@ -21,13 +21,15 @@ passport.use(
       clientSecret: keys.googleClientSecret,
       callbackURL: '/auth/google/callback',
     },
-    (accessToken, refreshToken, profile, done) => {
-      User.findOne({ googleID: profile.id })
-        .then((userInfo) => {
-          if (userInfo) {
-            done(null, userInfo);
+    (accessToken, refreshToken, googleUserProfile, done) => {
+      User.findOne({ googleID: googleUserProfile.id })
+        .then((existingDBUserProfile) => {
+          if (existingDBUserProfile) {
+            done(null, existingDBUserProfile);
           } else {
-            new User({ googleID: profile.id }).save().then(newUser => done(null, newUser));
+            new User({ googleID: googleUserProfile.id })
+              .save()
+              .then(newDBUserProfile => done(null, newDBUserProfile));
           }
         })
         .catch(console.error);

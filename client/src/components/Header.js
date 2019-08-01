@@ -1,44 +1,55 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { fetchUser } from '../actions';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import StripePayments from './StripePayments';
 
 const mapStateToProps = ({ auth }) => {
   return { auth };
 };
 
+const margin10 = { margin: '10px' };
+
 class Header extends Component {
-  renderBasedOnAuthStatus() {
+  createContentBasedOnAuthStatus() {
     switch (this.props.auth) {
       case null:
-        return 'Checking auth';
+        return [
+          <span style={margin10} key={'authUnknownLink'}>
+            Log in with Google
+          </span>,
+          'Checking auth'
+        ];
       case false:
-        return 'Logged out';
+        return [
+          <a style={margin10} key={'loggedOutLink'} href="/auth/google">
+            Log in with Google
+          </a>,
+          'Logged out'
+        ];
       default:
-        return 'Logged in!';
+        return [
+          <a style={margin10} key={'loggedInLink'} href="/api/logout">
+            Logout
+          </a>,
+          'Logged In!'
+        ];
     }
   }
 
   render() {
+    const [link, authStatus] = this.createContentBasedOnAuthStatus();
     const { auth } = this.props;
     return (
-      <header>
-        <Link to={auth ? '/dashboard' : '/'}>FeedbackFast</Link>
-        {auth && (
-          <a style={{ margin: '10px' }} href="/api/logout">
-            Logout
-          </a>
-        )}
-        {auth === false && (
-          <a style={{ margin: '10px' }} href="/auth/google">
-            Log in with Google
-          </a>
-        )}
-        {auth === null && (
-          <span style={{ margin: '10px' }}>Log in with Google</span>
-        )}
-        <span>{this.renderBasedOnAuthStatus()}</span>
-      </header>
+      <Fragment>
+        <header>
+          <Link to={auth ? '/dashboard' : '/'}>FeedbackFast</Link>
+          {link}
+          <span style={margin10}>{authStatus}</span>
+          {auth && <StripePayments />}
+        </header>
+        {auth && <span>{auth._id}</span>}
+      </Fragment>
     );
   }
 }
