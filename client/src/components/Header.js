@@ -37,6 +37,22 @@ class Header extends Component {
     }
   }
 
+  testSurveys = async () => {
+    const res = await fetch('/api/surveys', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: 'Test Email (title)',
+        recipients: ['bradleybaylis@hotmail.com'],
+        subject: 'Test email (subject)',
+        body: 'This is an email body (body)'
+      })
+    });
+  };
+
   render() {
     const [link, authStatus] = this.createContentBasedOnAuthStatus();
     const { auth } = this.props;
@@ -48,7 +64,8 @@ class Header extends Component {
           <span style={margin10}>{authStatus}</span>
           {auth && <StripePayments />}
         </header>
-        {auth && <span>{auth._id}</span>}
+        {auth && <span>{`Id: ${auth._id}   Credits:${auth.credits}`}</span>}
+        {auth && <button onClick={this.testSurveys}>Test</button>}
       </Fragment>
     );
   }

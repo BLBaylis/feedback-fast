@@ -4,11 +4,12 @@ const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const keys = require('./config/keys');
-const requireLogin = require('./middlewares/requireLogin');
 require('./models/Users');
+require('./models/Surveys');
 require('./services/passport');
 const authRoutes = require('./routes/auth');
 const billingRoutes = require('./routes/billing');
+const surveyRoutes = require('./routes/surveys');
 
 mongoose.connect(keys.mongoURI, { useNewUrlParser: true });
 const app = express();
@@ -26,6 +27,7 @@ app.use(passport.session());
 app.get('/', (req, res) => res.send('Howdy!'));
 authRoutes(app);
 billingRoutes(app);
+surveyRoutes(app);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT);

@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/BLBaylis/feedback-fast#readme",
   "dependencies": {
+    "@sendgrid/mail": "^6.4.0",
     "body-parser": "^1.19.0",
     "concurrently": "^4.1.1",
     "cookie-session": "^1.3.3",
