@@ -3,8 +3,16 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
 import Header from './Header';
+import Survey from './survey/Survey.js';
 
-const LandingPage = () => <h1>Hi from Landing Page</h1>;
+const LandingPage = () => {
+  return (
+    <div>
+      <h1>Hi from Landing Page</h1>
+      <Survey />
+    </div>
+  );
+};
 const Dashboard = () => <h1>Hi from Dashboard</h1>;
 const dummyComp3 = () => <h1>Hi from 3</h1>;
 const dummyComp4 = () => <h1>Hi from 4</h1>;

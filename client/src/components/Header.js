@@ -38,7 +38,7 @@ class Header extends Component {
   }
 
   testSurveys = async () => {
-    const res = await fetch('/api/surveys', {
+    await fetch('/api/surveys', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
