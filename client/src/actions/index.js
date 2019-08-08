@@ -1,4 +1,4 @@
-import { FETCH_USER, HANDLE_TOKEN } from './constants';
+import { FETCH_USER } from './constants';
 
 export const fetchUser = () => async dispatch => {
   try {
@@ -20,11 +20,32 @@ export const handleToken = token => async dispatch => {
       },
       body: JSON.stringify(token)
     });
-    const user = await res.json();
-    if (user.error) {
+    const userProfile = await res.json();
+    if (userProfile.error) {
       throw new Error();
     }
-    dispatch({ type: HANDLE_TOKEN, payload: user });
+    dispatch({ type: FETCH_USER, payload: userProfile });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const submitSurvey = (values, history) => async dispatch => {
+  try {
+    const res = await fetch('/api/surveys', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(values)
+    });
+    const userProfile = await res.json();
+    if (userProfile.error) {
+      throw new Error();
+    }
+    history.push('/dashboard');
+    dispatch({ type: FETCH_USER, payload: userProfile });
   } catch (err) {
     console.error(err);
   }

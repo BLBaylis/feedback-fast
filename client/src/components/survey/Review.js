@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Review = ({ formProps }) => {
+const Review = ({ formProps, updatePage }) => {
   const {
     surveyName,
     surveySubject,
@@ -19,6 +19,8 @@ const Review = ({ formProps }) => {
       <div>{surveyBody}</div>
       <div>Recipients</div>
       <div>{surveyRecipients}</div>
+      <button onClick={() => updatePage('recipients')}>Back</button>
+      <button type="submit">Submit Survey</button>
     </React.Fragment>
   );
 };

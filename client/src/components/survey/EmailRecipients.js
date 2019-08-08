@@ -12,12 +12,7 @@ const recipientsValidation = emails => {
   }
 };
 
-const EmailRecipients = ({
-  checkFieldIsValidated,
-  updatePageStatus,
-  formProps
-}) => {
-  console.log(formProps);
+const EmailRecipients = ({ checkFieldIsValidated, updatePage, formProps }) => {
   return (
     <React.Fragment>
       <h1>EmailRecipients</h1>
@@ -34,9 +29,12 @@ const EmailRecipients = ({
         />
       </label>
       <ErrorMessage name="surveyRecipients" />
+      <button type="button" onClick={() => updatePage('emailCreation')}>
+        Back
+      </button>
       <button
         type="button"
-        onClick={() => updatePageStatus('recipients')}
+        onClick={() => updatePage('review')}
         disabled={
           formProps.isValidating ||
           !checkFieldIsValidated('surveyRecipients', formProps)

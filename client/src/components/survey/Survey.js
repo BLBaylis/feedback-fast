@@ -1,24 +1,41 @@
 import React from 'react';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
+import { connect } from 'react-redux';
+import { submitSurvey } from '../../actions';
+import { withRouter } from 'react-router-dom';
 import EmailCreation from './EmailCreation';
 import EmailRecipients from './EmailRecipients';
 import Review from './Review';
 
 class Survey extends React.Component {
   state = {
-    emailCreationDone: false,
-    recipientsDone: false
+    page: 'emailCreation'
   };
 
-  updatePageStatus = pageName => {
-    this.setState(prevState => ({
-      [`${pageName}Done`]: !prevState[`${pageName}Done`]
-    }));
+  updatePage = pageName => {
+    this.setState({
+      page: pageName
+    });
   };
 
-  onSubmit = (values, { setSubmitting }) => {
-    console.log('submitted!', values);
+  onSubmit = async (values, { setSubmitting }) => {
+    const {
+      surveyName: title,
+      surveySubject: subject,
+      surveyBody: body,
+      surveyRecipients: recipients
+    } = values;
+    console.log('submitted!', { title, subject, body, recipients });
+    await this.props.submitSurvey(
+      {
+        title,
+        subject,
+        body,
+        recipients: recipients.split(',').map(email => email.trim())
+      },
+      this.props.history
+    );
     setSubmitting(false);
   };
 
@@ -43,7 +60,6 @@ class Survey extends React.Component {
   };
 
   render() {
-    console.log(this.state);
     return (
       <Formik
         initialValues={{
@@ -58,25 +74,23 @@ class Survey extends React.Component {
         {formProps => {
           return (
             <Form>
-              {!this.state.emailCreationDone && (
+              {this.state.page === 'emailCreation' && (
                 <EmailCreation
                   formProps={formProps}
-                  updatePageStatus={this.updatePageStatus}
+                  updatePage={this.updatePage}
                   checkFieldIsValidated={this.checkFieldIsValidated}
                 />
               )}
-              {this.state.emailCreationDone && !this.state.recipientsDone && (
-                <EmailRecipients
-                  formProps={formProps}
-                  updatePageStatus={this.updatePageStatus}
-                  checkFieldIsValidated={this.checkFieldIsValidated}
-                />
-              )}
-              {this.state.emailCreationDone && this.state.recipientsDone && (
-                <Review
-                  formProps={formProps}
-                  updatePageStatus={this.updatePageStatus}
-                />
+              {this.state.page === 'recipients' &&
+                !this.state.recipientsDone && (
+                  <EmailRecipients
+                    formProps={formProps}
+                    updatePage={this.updatePage}
+                    checkFieldIsValidated={this.checkFieldIsValidated}
+                  />
+                )}
+              {this.state.page === 'review' && (
+                <Review formProps={formProps} updatePage={this.updatePage} />
               )}
             </Form>
           );
@@ -86,4 +100,9 @@ class Survey extends React.Component {
   }
 }
 
-export default Survey;
+export default withRouter(
+  connect(
+    null,
+    { submitSurvey }
+  )(Survey)
+);
