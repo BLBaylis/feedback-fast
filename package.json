@@ -11,7 +11,8 @@
   "scripts": {
     "server": "nodemon server.js",
     "client": "npm run start --prefix client",
-    "start": "concurrently \"npm run server\" \"npm run client\""
+    "start": "concurrently \"npm run server\" \"npm run client\" \"npm run webhook\"",
+    "webhook": "ssh -R feedbackfast:80:localhost:5000 serveo.net"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "mongoose": "^5.5.13",
     "passport": "^0.4.0",
     "passport-google-oauth20": "^2.0.0",
+    "path-parser": "^4.2.0",
     "stripe": "^7.5.2"
   },
   "devDependencies": {

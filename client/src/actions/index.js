@@ -1,4 +1,4 @@
-import { FETCH_USER } from './constants';
+import { FETCH_USER, FETCH_SURVEYS } from './constants';
 
 export const fetchUser = () => async dispatch => {
   try {
@@ -49,4 +49,14 @@ export const submitSurvey = (values, history) => async dispatch => {
   } catch (err) {
     console.error(err);
   }
+};
+
+export const fetchSurveys = () => async dispatch => {
+  try {
+    const res = await fetch('/api/surveys');
+    var surveys = await res.json();
+  } catch (err) {
+    dispatch({ type: FETCH_SURVEYS, payload: false });
+  }
+  dispatch({ type: FETCH_SURVEYS, payload: surveys });
 };

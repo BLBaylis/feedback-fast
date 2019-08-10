@@ -5,8 +5,8 @@ module.exports = survey => `<html>
                 <div style="text-align: center">
                     <h3>Tell us about your experience!</h3>
                     <p>${survey.body}</p>
-                    <div><a href=${keys.formRedirect}/api/surveys/feedback>YES</a></div> 
-                    <div><a href=${keys.formRedirect}/api/surveys/feedback>NO</a></div> 
+                    <div><a href="${keys.formRedirect}/api/surveys/${survey.id}/yes">YES</a></div> 
+                    <div><a href="${keys.formRedirect}/api/surveys/${survey.id}/no">NO</a></div> 
                 </div>
             </body>
         </html>`;

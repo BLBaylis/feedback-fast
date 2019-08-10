@@ -3,13 +3,15 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
 import Header from './Header';
-import Survey from './survey/Survey.js';
+import SurveyCreator from './surveyCreator/SurveyCreator.js';
+import SurveyList from './SurveyList';
 
 const Dashboard = () => {
   return (
     <div>
       <h1>Hi from Dashboard</h1>
-      <Survey />
+      <SurveyCreator />
+      <SurveyList />
     </div>
   );
 };
@@ -19,7 +21,6 @@ const dummyComp4 = () => <h1>Hi from 4</h1>;
 
 class App extends Component {
   componentWillMount() {
-    console.log(this.props.fetchUser);
     this.props.fetchUser();
   }
 
