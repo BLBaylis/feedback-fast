@@ -1,23 +1,29 @@
-import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import React, { Component, Fragment } from 'react';
+import { BrowserRouter, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
 import Header from './Header';
-import SurveyCreator from './surveyCreator/SurveyCreator.js';
-import SurveyList from './SurveyList';
+import LandingPage from './LandingPage';
+import Dashboard from './Dashboard';
 
-const Dashboard = () => {
+const PrivateRoute = ({ auth, component: Component, ...rest }) => {
   return (
-    <div>
-      <h1>Hi from Dashboard</h1>
-      <SurveyCreator />
-      <SurveyList />
-    </div>
+    <Route
+      {...rest}
+      render={props => {
+        return auth ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/'
+            }}
+          />
+        );
+      }}
+    />
   );
 };
-const LandingPage = () => <h1>Hi from Landing Page</h1>;
-const dummyComp3 = () => <h1>Hi from 3</h1>;
-const dummyComp4 = () => <h1>Hi from 4</h1>;
 
 class App extends Component {
   componentWillMount() {
@@ -26,22 +32,22 @@ class App extends Component {
 
   render() {
     return (
-      <div>
+      <Fragment>
         <BrowserRouter>
-          <div>
-            <Header />
-            <Route path="/" exact component={LandingPage} />
-            <Route path="/dashboard" component={Dashboard} />
-            <Route path="/3" exact component={dummyComp3} />
-            <Route path="/4" exact component={dummyComp4} />
-          </div>
+          <Header />
+          <Route path="/" exact component={LandingPage} />
+          <PrivateRoute
+            auth={this.props.auth}
+            path="/dashboard"
+            component={Dashboard}
+          />
         </BrowserRouter>
-      </div>
+      </Fragment>
     );
   }
 }
 
 export default connect(
-  null,
+  ({ auth }) => ({ auth }),
   { fetchUser }
 )(App);

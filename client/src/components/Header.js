@@ -1,40 +1,50 @@
 import React, { Component, Fragment } from 'react';
 import { fetchUser } from '../actions';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import { AppBar, Toolbar, Link as MuiLink, Button } from '@material-ui/core';
 import StripePayments from './StripePayments';
 
 const mapStateToProps = ({ auth }) => {
   return { auth };
 };
 
-const margin10 = { margin: '10px' };
-
 class Header extends Component {
   createContentBasedOnAuthStatus() {
+    let component = MuiLink;
+    let disabled = false;
+    let btnText = 'Login with Google';
+    let key, href, authStatus;
+
     switch (this.props.auth) {
       case null:
-        return [
-          <span style={margin10} key={'authUnknownLink'}>
-            Log in with Google
-          </span>,
-          'Checking auth'
-        ];
+        disabled = true;
+        key = 'authUnknownLink';
+        authStatus = 'Checking auth...';
+        break;
       case false:
-        return [
-          <a style={margin10} key={'loggedOutLink'} href="/auth/google">
-            Log in with Google
-          </a>,
-          'Logged out'
-        ];
+        key = 'loggedOutLink';
+        href = '/auth/google';
+        authStatus = 'Logged out';
+        break;
       default:
-        return [
-          <a style={margin10} key={'loggedInLink'} href="/api/logout">
-            Logout
-          </a>,
-          'Logged In!'
-        ];
+        key = 'loggedInLink';
+        href = '/api/logout';
+        authStatus = 'Logged In!';
+        btnText = 'Log out';
     }
+    return [
+      <Button
+        style={{ color: 'white', margin: '0 10px' }}
+        component={component}
+        disabled={disabled}
+        key={key}
+        href={href}
+      >
+        {btnText}
+      </Button>,
+      authStatus
+    ];
   }
 
   testSurveys = async () => {
@@ -58,12 +68,20 @@ class Header extends Component {
     const { auth } = this.props;
     return (
       <Fragment>
-        <header>
-          <Link to={auth ? '/dashboard' : '/'}>FeedbackFast</Link>
-          {link}
-          <span style={margin10}>{authStatus}</span>
-          {auth && <StripePayments />}
-        </header>
+        <AppBar>
+          <Toolbar style={{ justifyContent: 'flex-end' }}>
+            <Button
+              component={RouterLink}
+              to={auth ? '/dashboard' : '/'}
+              style={{ color: 'white', marginRight: 'auto' }}
+            >
+              FeedbackFast
+            </Button>
+            <span style={{ margin: '0 10px' }}>{authStatus}</span>
+            {link}
+          </Toolbar>
+        </AppBar>
+        <header>{auth && <StripePayments />}</header>
         {auth && <span>{`Id: ${auth._id}   Credits:${auth.credits}`}</span>}
         {auth && <button onClick={this.testSurveys}>Test</button>}
       </Fragment>
