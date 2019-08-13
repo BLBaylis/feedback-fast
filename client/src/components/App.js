@@ -5,6 +5,7 @@ import { fetchUser } from '../actions';
 import Header from './Header';
 import LandingPage from './LandingPage';
 import Dashboard from './Dashboard';
+import SurveyCreator from './surveyCreator/SurveyCreator';
 
 const PrivateRoute = ({ auth, component: Component, ...rest }) => {
   return (
@@ -40,6 +41,11 @@ class App extends Component {
             auth={this.props.auth}
             path="/dashboard"
             component={Dashboard}
+          />
+          <PrivateRoute
+            auth={this.props.auth}
+            path="/surveys/new"
+            component={SurveyCreator}
           />
         </BrowserRouter>
       </Fragment>

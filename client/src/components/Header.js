@@ -81,9 +81,9 @@ class Header extends Component {
             {link}
           </Toolbar>
         </AppBar>
-        <header>{auth && <StripePayments />}</header>
-        {auth && <span>{`Id: ${auth._id}   Credits:${auth.credits}`}</span>}
-        {auth && <button onClick={this.testSurveys}>Test</button>}
+        {/*<header>{auth && <StripePayments />}</header>}
+        auth && <span>{`Id: ${auth._id}   Credits:${auth.credits}`}</span>
+    auth && <button onClick={this.testSurveys}>Test</button>*/}
       </Fragment>
     );
   }

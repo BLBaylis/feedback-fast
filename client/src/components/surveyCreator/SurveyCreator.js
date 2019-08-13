@@ -4,19 +4,47 @@ import * as yup from 'yup';
 import { connect } from 'react-redux';
 import { submitSurvey } from '../../actions';
 import { withRouter } from 'react-router-dom';
+import { Button, Paper, Stepper, Step, StepLabel } from '@material-ui/core';
 import EmailCreation from './EmailCreation';
 import EmailRecipients from './EmailRecipients';
 import Review from './Review';
 
 class Survey extends React.Component {
   state = {
-    page: 'emailCreation'
+    activeStep: 0
   };
 
-  updatePage = pageName => {
-    this.setState({
-      page: pageName
-    });
+  steps = ['Survey Details', 'Recipients', 'Review your survey'];
+
+  pageFields = [
+    ['surveyName', 'surveySubject', 'surveyBody'],
+    ['surveyRecipients'],
+    ['surveyName', 'surveySubject', 'surveyBody', 'surveyRecipients']
+  ];
+
+  setActiveStep = direction => {
+    const stepChange = direction === 'back' ? -1 : 1;
+    this.setState(prevState => ({
+      activeStep: prevState.activeStep + stepChange
+    }));
+  };
+
+  getStepContent = (step, formProps) => {
+    const props = {
+      formProps,
+      updatePage: this.updatePage,
+      checkFieldIsValidated: this.checkFieldIsValidated
+    };
+    switch (step) {
+      case 0:
+        return <EmailCreation {...props} />;
+      case 1:
+        return <EmailRecipients {...props} />;
+      case 2:
+        return <Review {...props} />;
+      default:
+        throw new Error('Unknown step');
+    }
   };
 
   onSubmit = async (values, { setSubmitting }) => {
@@ -26,7 +54,6 @@ class Survey extends React.Component {
       surveyBody: body,
       surveyRecipients: recipients
     } = values;
-    console.log('submitted!', { title, subject, body, recipients });
     await this.props.submitSurvey(
       {
         title,
@@ -61,41 +88,62 @@ class Survey extends React.Component {
 
   render() {
     return (
-      <Formik
-        initialValues={{
-          surveyName: '',
-          surveySubject: '',
-          surveyBody: '',
-          surveyRecipients: ''
-        }}
-        onSubmit={this.onSubmit}
-        validationSchema={this.validationSchema}
-      >
-        {formProps => {
-          return (
-            <Form>
-              {this.state.page === 'emailCreation' && (
-                <EmailCreation
-                  formProps={formProps}
-                  updatePage={this.updatePage}
-                  checkFieldIsValidated={this.checkFieldIsValidated}
-                />
-              )}
-              {this.state.page === 'recipients' &&
-                !this.state.recipientsDone && (
-                  <EmailRecipients
-                    formProps={formProps}
-                    updatePage={this.updatePage}
-                    checkFieldIsValidated={this.checkFieldIsValidated}
-                  />
-                )}
-              {this.state.page === 'review' && (
-                <Review formProps={formProps} updatePage={this.updatePage} />
-              )}
-            </Form>
-          );
-        }}
-      </Formik>
+      <div style={{ width: '600px', margin: '0 auto' }}>
+        <Paper style={{ padding: '24px', margin: '112px 0' }}>
+          <Formik
+            initialValues={{
+              surveyName: '',
+              surveySubject: '',
+              surveyBody: '',
+              surveyRecipients: ''
+            }}
+            onSubmit={this.onSubmit}
+            validationSchema={this.validationSchema}
+          >
+            {formProps => {
+              const { activeStep } = this.state;
+              return (
+                <Form>
+                  <Stepper activeStep={activeStep}>
+                    {this.steps.map(label => (
+                      <Step key={label}>
+                        <StepLabel>{label}</StepLabel>
+                      </Step>
+                    ))}
+                  </Stepper>
+                  {this.getStepContent(activeStep, formProps)}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    {activeStep !== 0 && (
+                      <Button
+                        style={{ margin: '24px 8px 0 0' }}
+                        onClick={() => this.setActiveStep('back')}
+                      >
+                        Back
+                      </Button>
+                    )}
+                    <Button
+                      style={{ margin: '24px 8px 0 0' }}
+                      variant="contained"
+                      color="primary"
+                      onClick={() => this.setActiveStep('next')}
+                      disabled={
+                        formProps.isValidating ||
+                        !this.pageFields[activeStep].every(fieldName =>
+                          this.checkFieldIsValidated(fieldName, formProps)
+                        )
+                      }
+                    >
+                      {activeStep !== this.steps.length - 1
+                        ? 'Next'
+                        : 'Send Survey'}
+                    </Button>
+                  </div>
+                </Form>
+              );
+            }}
+          </Formik>
+        </Paper>
+      </div>
     );
   }
 }

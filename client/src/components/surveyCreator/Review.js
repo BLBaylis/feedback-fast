@@ -1,26 +1,23 @@
 import React from 'react';
+import { List, ListItem, ListItemText, Typography } from '@material-ui/core';
 
-const Review = ({ formProps, updatePage }) => {
-  const {
-    surveyName,
-    surveySubject,
-    surveyBody,
-    surveyRecipients
-  } = formProps.values;
-  console.log(formProps);
+const Review = ({ checkFieldIsValidated, formProps, updatePage }) => {
+  const labels = ['Survey Name', 'Subject', 'Body', 'Recipients'];
+  const values = Object.values(formProps.values);
   return (
     <React.Fragment>
-      <h1>Review</h1>
-      <div>Survey Name</div>
-      <div>{surveyName}</div>
-      <div>Subject</div>
-      <div>{surveySubject}</div>
-      <div>Body</div>
-      <div>{surveyBody}</div>
-      <div>Recipients</div>
-      <div>{surveyRecipients}</div>
-      <button onClick={() => updatePage('recipients')}>Back</button>
-      <button type="submit">Submit Survey</button>
+      <Typography component="h1" variant="h4" align="center">
+        Review
+      </Typography>
+      <List>
+        {values.map((listItem, index) => {
+          return (
+            <ListItem key={labels[index]}>
+              <ListItemText primary={labels[index]} secondary={listItem} />
+            </ListItem>
+          );
+        })}
+      </List>
     </React.Fragment>
   );
 };

@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Grid } from '@material-ui/core';
+import { Link as RouterLink } from 'react-router-dom';
+import { Fab, Grid, Typography } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
 import { fetchSurveys } from '../../actions';
 import SurveyCard from './SurveyCard';
 
@@ -13,8 +15,8 @@ class SurveyList extends Component {
     return surveys.reverse().map((props, index) => {
       const { title } = props;
       return (
-        <Grid item xs={4} key={`${title}grid-${index}`}>
-          <SurveyCard {...props} />
+        <Grid item xs={12} sm={6} md={4} lg={3} key={`${title}grid-${index}`}>
+          <SurveyCard {...props} id={index} />
         </Grid>
       );
     });
@@ -24,8 +26,31 @@ class SurveyList extends Component {
     const { surveys } = this.props;
     return (
       <Fragment>
-        <h1>Previous Surveys</h1>
-        <Grid container spacing={5}>
+        <RouterLink to="/surveys/new">
+          <Fab
+            color="primary"
+            aria-label="new survey"
+            size="large"
+            style={{ position: 'fixed', bottom: '20px', right: '20px' }}
+          >
+            <AddIcon />
+          </Fab>
+        </RouterLink>
+
+        <Typography
+          gutterBottom
+          variant="h3"
+          component="h1"
+          text="primary"
+          style={{ textAlign: 'center', margin: '1.5rem auto' }}
+        >
+          Surveys
+        </Typography>
+        <Grid
+          container
+          spacing={3}
+          style={{ marginBottom: '12px' } /*spacing * 4px*/}
+        >
           {this.createSurveys(surveys)}
         </Grid>
       </Fragment>
