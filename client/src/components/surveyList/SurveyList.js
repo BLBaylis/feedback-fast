@@ -16,7 +16,7 @@ class SurveyList extends Component {
       const { title } = props;
       return (
         <Grid item xs={12} sm={6} md={4} lg={3} key={`${title}grid-${index}`}>
-          <SurveyCard {...props} id={index} />
+          <SurveyCard {...props} />
         </Grid>
       );
     });
@@ -26,7 +26,7 @@ class SurveyList extends Component {
     const { surveys } = this.props;
     return (
       <Fragment>
-        <RouterLink to="/surveys/new">
+        <RouterLink to="/dashboard/surveys/new">
           <Fab
             color="primary"
             aria-label="new survey"

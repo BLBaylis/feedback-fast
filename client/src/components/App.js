@@ -1,30 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { BrowserRouter, Route, Redirect } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
 import Header from './Header';
 import LandingPage from './LandingPage';
 import Dashboard from './Dashboard';
-import SurveyCreator from './surveyCreator/SurveyCreator';
-
-const PrivateRoute = ({ auth, component: Component, ...rest }) => {
-  return (
-    <Route
-      {...rest}
-      render={props => {
-        return auth ? (
-          <Component {...props} />
-        ) : (
-          <Redirect
-            to={{
-              pathname: '/'
-            }}
-          />
-        );
-      }}
-    />
-  );
-};
+import PrivateRoute from './PrivateRoute';
 
 class App extends Component {
   componentWillMount() {
@@ -32,21 +13,16 @@ class App extends Component {
   }
 
   render() {
+    console.log('APP AUTH', this.props);
+    const auth = this.props.auth;
     return (
       <Fragment>
         <BrowserRouter>
           <Header />
           <Route path="/" exact component={LandingPage} />
-          <PrivateRoute
-            auth={this.props.auth}
-            path="/dashboard"
-            component={Dashboard}
-          />
-          <PrivateRoute
-            auth={this.props.auth}
-            path="/surveys/new"
-            component={SurveyCreator}
-          />
+          {auth !== null && (
+            <PrivateRoute path="/dashboard" auth={auth} component={Dashboard} />
+          )}
         </BrowserRouter>
       </Fragment>
     );

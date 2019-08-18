@@ -28,6 +28,7 @@ module.exports = (app) => {
       recipients: recipients.map(email => ({ email: email.trim() })),
       _user: req.user.id,
       dateSent: Date.now(),
+      lastResponded: null,
     });
     const mailer = new Mailer(survey, emailTemplate(survey));
     try {

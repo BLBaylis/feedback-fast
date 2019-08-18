@@ -102,6 +102,9 @@ class Survey extends React.Component {
           >
             {formProps => {
               const { activeStep } = this.state;
+              const btnType =
+                activeStep !== this.steps.length - 1 ? 'button' : 'submit';
+              console.log(btnType);
               return (
                 <Form>
                   <Stepper activeStep={activeStep}>
@@ -123,6 +126,7 @@ class Survey extends React.Component {
                     )}
                     <Button
                       style={{ margin: '24px 8px 0 0' }}
+                      type={btnType}
                       variant="contained"
                       color="primary"
                       onClick={() => this.setActiveStep('next')}

@@ -72,18 +72,18 @@ class Header extends Component {
           <Toolbar style={{ justifyContent: 'flex-end' }}>
             <Button
               component={RouterLink}
-              to={auth ? '/dashboard' : '/'}
+              to={auth ? '/dashboard/surveys' : '/'}
               style={{ color: 'white', marginRight: 'auto' }}
             >
               FeedbackFast
             </Button>
+            {auth && <StripePayments />}
+            {auth && <span>{`Id: ${auth._id}   Credits:${auth.credits}`}</span>}
+            {auth && <button onClick={this.testSurveys}>Test</button>}
             <span style={{ margin: '0 10px' }}>{authStatus}</span>
             {link}
           </Toolbar>
         </AppBar>
-        {/*<header>{auth && <StripePayments />}</header>}
-        auth && <span>{`Id: ${auth._id}   Credits:${auth.credits}`}</span>
-    auth && <button onClick={this.testSurveys}>Test</button>*/}
       </Fragment>
     );
   }

@@ -6,12 +6,14 @@ import {
   CardContent,
   CardActions
 } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 
 const tallyStyles = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  height: '100%'
+  height: '100%',
+  width: '100px'
 };
 
 const yesTally = {
@@ -31,7 +33,7 @@ const totalTally = {
   color: '#3f51b5'
 };
 
-const SurveyCard = ({ title, dateSent, yes, no }, id) => {
+const SurveyCard = ({ _id: id, title, dateSent, yes, no }) => {
   return (
     <Card
       key={`${title}${dateSent}card${id}`}
@@ -64,9 +66,11 @@ const SurveyCard = ({ title, dateSent, yes, no }, id) => {
           key={`${title}${dateSent}date${id}`}
         >{`Sent: ${new Date(dateSent).toLocaleDateString()}`}</Typography>
         <CardActions style={{ justifyContent: 'center' }}>
-          <Button color="primary" variant="outlined">
-            More Info
-          </Button>
+          <Link to={`/dashboard/surveys/${id}`}>
+            <Button color="primary" variant="outlined">
+              More Info
+            </Button>
+          </Link>
         </CardActions>
       </CardContent>
       <div
@@ -74,7 +78,6 @@ const SurveyCard = ({ title, dateSent, yes, no }, id) => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-evenly',
-          width: '100px',
           marginLeft: 'auto'
         }}
       >
