@@ -4,7 +4,14 @@ import * as yup from 'yup';
 import { connect } from 'react-redux';
 import { submitSurvey } from '../../actions';
 import { withRouter } from 'react-router-dom';
-import { Button, Paper, Stepper, Step, StepLabel } from '@material-ui/core';
+import {
+  Button,
+  Paper,
+  Stepper,
+  Step,
+  StepLabel,
+  Typography
+} from '@material-ui/core';
 import EmailCreation from './EmailCreation';
 import EmailRecipients from './EmailRecipients';
 import Review from './Review';
@@ -22,7 +29,7 @@ class Survey extends React.Component {
     ['surveyName', 'surveySubject', 'surveyBody', 'surveyRecipients']
   ];
 
-  setActiveStep = direction => {
+  setActiveStep = () => direction => {
     const stepChange = direction === 'back' ? -1 : 1;
     this.setState(prevState => ({
       activeStep: prevState.activeStep + stepChange
@@ -75,11 +82,11 @@ class Survey extends React.Component {
     return yup.object().shape({
       surveyName: yup
         .string()
-        .max(30, 'Max 30 characters')
+        .max(75, 'Max 75 characters')
         .required('This field is required'),
       surveySubject: yup
         .string()
-        .max(30, 'Max 30 characters')
+        .max(75, 'Max 75 characters')
         .required('This field is required'),
       surveyBody: yup.string().required('This field is required'),
       surveyRecipients: yup.string().required('This field is required')
@@ -87,9 +94,23 @@ class Survey extends React.Component {
   };
 
   render() {
+    const {
+      steps,
+      pageFields,
+      getStepContent,
+      setActiveStep,
+      checkFieldIsValidated
+    } = this;
+    const { activeStep } = this.state;
+    const isStep1 = activeStep === 0;
+    const isReviewStep = activeStep === 2;
+    const allStepsDone = activeStep === steps.length;
+    const btnType = isReviewStep ? 'submit' : 'button';
+    const btnKey = `btn-${btnType}`;
     return (
       <div style={{ width: '600px', margin: '0 auto' }}>
         <Paper style={{ padding: '24px', margin: '112px 0' }}>
+          {allStepsDone && <Typography variant="h6">Survey Sent!</Typography>}
           <Formik
             initialValues={{
               surveyName: '',
@@ -101,47 +122,51 @@ class Survey extends React.Component {
             validationSchema={this.validationSchema}
           >
             {formProps => {
-              const { activeStep } = this.state;
-              const btnType =
-                activeStep !== this.steps.length - 1 ? 'button' : 'submit';
-              console.log(btnType);
               return (
                 <Form>
-                  <Stepper activeStep={activeStep}>
-                    {this.steps.map(label => (
-                      <Step key={label}>
-                        <StepLabel>{label}</StepLabel>
-                      </Step>
-                    ))}
-                  </Stepper>
-                  {this.getStepContent(activeStep, formProps)}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    {activeStep !== 0 && (
+                  {!allStepsDone && (
+                    <Stepper activeStep={activeStep}>
+                      {steps.map(label => (
+                        <Step key={label}>
+                          <StepLabel>{label}</StepLabel>
+                        </Step>
+                      ))}
+                    </Stepper>
+                  )}
+                  {!allStepsDone && getStepContent(activeStep, formProps)}
+                  {!allStepsDone && (
+                    <div
+                      style={{ display: 'flex', justifyContent: 'flex-end' }}
+                    >
+                      {!isStep1 && (
+                        <Button
+                          type="button"
+                          style={{ margin: '24px 8px 0 0' }}
+                          onClick={setActiveStep('back')}
+                        >
+                          Back
+                        </Button>
+                      )}
                       <Button
                         style={{ margin: '24px 8px 0 0' }}
-                        onClick={() => this.setActiveStep('back')}
+                        key={btnKey}
+                        type={btnType}
+                        variant="contained"
+                        color="primary"
+                        onClick={
+                          btnType === 'button' ? setActiveStep('next') : null
+                        }
+                        disabled={
+                          formProps.isValidating ||
+                          !pageFields[activeStep].every(fieldName =>
+                            checkFieldIsValidated(fieldName, formProps)
+                          )
+                        }
                       >
-                        Back
+                        {isReviewStep ? 'Send Survey' : 'Next'}
                       </Button>
-                    )}
-                    <Button
-                      style={{ margin: '24px 8px 0 0' }}
-                      type={btnType}
-                      variant="contained"
-                      color="primary"
-                      onClick={() => this.setActiveStep('next')}
-                      disabled={
-                        formProps.isValidating ||
-                        !this.pageFields[activeStep].every(fieldName =>
-                          this.checkFieldIsValidated(fieldName, formProps)
-                        )
-                      }
-                    >
-                      {activeStep !== this.steps.length - 1
-                        ? 'Next'
-                        : 'Send Survey'}
-                    </Button>
-                  </div>
+                    </div>
+                  )}
                 </Form>
               );
             }}

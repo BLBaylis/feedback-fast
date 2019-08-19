@@ -17,6 +17,16 @@ module.exports = (app) => {
 
   app.get('/api/surveys/:surveyId/:response', (req, res) => res.send('Thanks for your feedback!'));
 
+  app.post('/api/surveys/recipients', requireLogin, async (req, res) => {
+    const { _id: surveyId } = req.body;
+    const survey = await Survey.findOne({ _id: surveyId }).select('recipients');
+    if (!survey) {
+      return res.send({ error: 'No Record Found' });
+    }
+    const recipients = survey.recipients.map(({ _id, email }) => ({ _id, email }));
+    res.send(recipients);
+  });
+
   app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
     const {
       title, recipients, subject, body,

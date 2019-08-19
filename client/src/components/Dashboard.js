@@ -12,7 +12,7 @@ const Dashboard = props => {
         <Route
           path="/dashboard"
           exact
-          render={props => <Redirect path="/dashboard/surveys" {...props} />}
+          render={props => <Redirect to = "/dashboard/surveys" {...props} />}
         />
         <Route path="/dashboard/surveys" component={SurveyList} exact />
         <Route path="/dashboard/surveys/new" component={SurveyCreator} />

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchSurveys } from '../../actions';
+import { fetchSurveys, fetchRecipients } from '../../actions';
 import {
   ExpansionPanel,
   ExpansionPanelDetails,
   ExpansionPanelSummary,
   Container,
-  Typography
+  Typography,
+  Button
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -35,7 +36,8 @@ const materialStyles = {
 
 class SurveyDetails extends Component {
   state = {
-    expandedPanel: false
+    expandedPanel: false,
+    recipientsFetched: false
   };
 
   componentDidMount() {
@@ -44,11 +46,16 @@ class SurveyDetails extends Component {
     }
   }
 
-  handleClick = panel => () => {
+  handlePanelClick = panel => () => {
     this.setState(({ expandedPanel }) => {
       const nextState = expandedPanel === panel ? false : panel;
       return { expandedPanel: nextState };
     });
+  };
+
+  handleButtonClick = surveyId => async () => {
+    await this.props.fetchRecipients(surveyId);
+    this.setState({ recipientsFetched: true });
   };
 
   render() {
@@ -70,7 +77,6 @@ class SurveyDetails extends Component {
     }
     const classes = this.props.classes;
     const expanded = this.state.expandedPanel;
-    console.log(this.props.survey);
     return (
       <Container>
         {this.props.survey && (
@@ -85,7 +91,7 @@ class SurveyDetails extends Component {
             </Typography>
             <ExpansionPanel
               expanded={expanded === 'panel1'}
-              onChange={this.handleClick('panel1')}
+              onChange={this.handlePanelClick('panel1')}
             >
               <ExpansionPanelSummary
                 classes={{ content: classes.content }}
@@ -110,7 +116,7 @@ class SurveyDetails extends Component {
             </ExpansionPanel>
             <ExpansionPanel
               expanded={expanded === 'panel2'}
-              onChange={this.handleClick('panel2')}
+              onChange={this.handlePanelClick('panel2')}
             >
               <ExpansionPanelSummary
                 classes={{ content: classes.content }}
@@ -121,7 +127,11 @@ class SurveyDetails extends Component {
                 <Typography variant="body2" style={styles.heading}>
                   Subject
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  style={styles.secondaryHeading}
+                >
                   {subject}
                 </Typography>
               </ExpansionPanelSummary>
@@ -131,7 +141,7 @@ class SurveyDetails extends Component {
             </ExpansionPanel>
             <ExpansionPanel
               expanded={expanded === 'panel3'}
-              onChange={this.handleClick('panel3')}
+              onChange={this.handlePanelClick('panel3')}
             >
               <ExpansionPanelSummary
                 classes={{ content: classes.content }}
@@ -142,7 +152,11 @@ class SurveyDetails extends Component {
                 <Typography variant="body2" style={styles.heading}>
                   Body
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  style={styles.secondaryHeading}
+                >
                   {body}
                 </Typography>
               </ExpansionPanelSummary>
@@ -158,26 +172,36 @@ class SurveyDetails extends Component {
             <ExpansionLessPanel name="Yes" value={yes} />
             <ExpansionLessPanel name="No" value={no} />
             <ExpansionLessPanel name="Total" value={yes + no} />
+            <Button onClick={this.handleButtonClick(this.props.survey._id)}>
+              Get recipients
+            </Button>
           </div>
         )}
-        {this.props.survey === undefined && <h1>Fetching survey...</h1>}
+
+        {this.props.survey === null && <h1>Fetching survey...</h1>}
         {this.props.survey === false && <h1>Invalid survey id</h1>}
+        {this.state.recipientsFetched &&
+          this.props.recipients.map(recipient => (
+            <span key={recipient._id}>{recipient.email}</span>
+          ))}
       </Container>
     );
   }
 }
 
-const mapStateToProps = ({ surveys }, ownProps) => {
-  let survey;
+const mapStateToProps = ({ surveys, recipients }, ownProps) => {
   if (!surveys.length) {
-    return { survey: undefined };
+    return { survey: null, recipients };
   }
-  survey = surveys.find(survey => survey._id === ownProps.match.params.id);
+  const survey = surveys.find(
+    survey => survey._id === ownProps.match.params.id
+  );
   if (!survey) {
-    return { survey: false };
+    return { survey: false, recipients };
   }
   return {
-    survey
+    survey,
+    recipients
   };
 };
 
@@ -185,5 +209,5 @@ const StyledSurveyDetails = withStyles(materialStyles)(SurveyDetails);
 
 export default connect(
   mapStateToProps,
-  { fetchSurveys }
+  { fetchSurveys, fetchRecipients }
 )(StyledSurveyDetails);
