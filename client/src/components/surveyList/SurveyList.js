@@ -24,6 +24,7 @@ class SurveyList extends Component {
 
   render() {
     const { surveys } = this.props;
+    console.log(surveys);
     return (
       <Fragment>
         <RouterLink to="/dashboard/surveys/new">

@@ -1,6 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Link as RouterLink, Redirect } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { Button, Container } from '@material-ui/core';
 
 const containerStyles = {
@@ -11,23 +10,30 @@ const containerStyles = {
   minHeight: '100%'
 };
 
-const LandingPage = ({ auth }) => {
+const LandingPage = () => {
   return (
     <Container style={containerStyles}>
       <h1>Welcome to Feedback Fast!</h1>
-      {auth && <Redirect to="/dashboard" />}
       <Button
         style={{ display: 'inline-block' }}
         size="large"
         variant="contained"
+        component={RouterLink}
+        to="/register"
       >
-        Sign up!
+        Sign up
+      </Button>
+      <Button
+        style={{ display: 'inline-block' }}
+        size="large"
+        variant="contained"
+        component={RouterLink}
+        to="/login"
+      >
+        Log in
       </Button>
     </Container>
   );
 };
 
-export default connect(
-  ({ auth }) => ({ auth }),
-  null
-)(LandingPage);
+export default LandingPage;

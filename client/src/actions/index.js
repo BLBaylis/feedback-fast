@@ -10,6 +10,53 @@ export const fetchUser = () => async dispatch => {
   dispatch({ type: FETCH_USER, payload: userProfile });
 };
 
+export const handleRegister = (values, history) => async dispatch => {
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(values)
+    });
+    const userProfile = await res.json();
+    console.log(userProfile);
+    if (userProfile.error) {
+      throw new Error();
+    }
+    history.push('/dashboard/surveys');
+    dispatch({ type: FETCH_USER, payload: userProfile });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const handleLogin = (credentials, history) => async dispatch => {
+  const { email, password } = credentials;
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+    const userProfile = await res.json();
+    if (userProfile.error) {
+      throw new Error();
+    }
+    history.push('/dashboard/surveys');
+    dispatch({ type: FETCH_USER, payload: userProfile });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const handleToken = token => async dispatch => {
   try {
     const res = await fetch('/api/stripe', {
@@ -44,8 +91,9 @@ export const submitSurvey = (values, history) => async dispatch => {
     if (userProfile.error) {
       throw new Error();
     }
-    history.push('/dashboard');
+
     dispatch({ type: FETCH_USER, payload: userProfile });
+    history.push('/dashboard/surveys');
   } catch (err) {
     console.error(err);
   }
@@ -55,10 +103,13 @@ export const fetchSurveys = () => async dispatch => {
   try {
     const res = await fetch('/api/surveys');
     var surveys = await res.json();
+    if (surveys.error) {
+      throw new Error(surveys.error);
+    }
+    dispatch({ type: FETCH_SURVEYS, payload: surveys });
   } catch (err) {
-    dispatch({ type: FETCH_SURVEYS, payload: false });
+    console.log(err);
   }
-  dispatch({ type: FETCH_SURVEYS, payload: surveys });
 };
 
 export const fetchRecipients = surveyId => async dispatch => {
@@ -72,7 +123,6 @@ export const fetchRecipients = surveyId => async dispatch => {
       body: JSON.stringify({ _id: surveyId })
     });
     const recipients = await res.json();
-    console.log(recipients, 'action');
     if (recipients.error) {
       throw new Error();
     }

@@ -11,8 +11,16 @@ const Survey = mongoose.model('surveys');
 
 module.exports = (app) => {
   app.get('/api/surveys', requireLogin, async (req, res) => {
-    const surveys = await Survey.find({ _user: req.user.id }).select({ recipients: 0 });
-    res.send(surveys);
+    let surveys;
+    try {
+      surveys = await Survey.find({ _user: req.user.id }).select({ recipients: 0 });
+    } catch (err) {
+      return res.json({ error: err });
+    }
+    if (!surveys) {
+      return res.json({ error: 'No surveys found' });
+    }
+    return res.send(surveys);
   });
 
   app.get('/api/surveys/:surveyId/:response', (req, res) => res.send('Thanks for your feedback!'));
@@ -24,7 +32,7 @@ module.exports = (app) => {
       return res.send({ error: 'No Record Found' });
     }
     const recipients = survey.recipients.map(({ _id, email }) => ({ _id, email }));
-    res.send(recipients);
+    return res.send(recipients);
   });
 
   app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {

@@ -54,7 +54,7 @@ class Survey extends React.Component {
     }
   };
 
-  onSubmit = async (values, { setSubmitting }) => {
+  handleSubmit = async (values, { setSubmitting }) => {
     const {
       surveyName: title,
       surveySubject: subject,
@@ -73,8 +73,7 @@ class Survey extends React.Component {
     setSubmitting(false);
   };
 
-  checkFieldIsValidated = (fieldName, formProps) => {
-    const { errors, touched } = formProps;
+  checkFieldIsValidated = (fieldName, { errors, touched }) => {
     return touched[fieldName] === true && errors[fieldName] === undefined;
   };
 
@@ -106,7 +105,6 @@ class Survey extends React.Component {
     const isReviewStep = activeStep === 2;
     const allStepsDone = activeStep === steps.length;
     const btnType = isReviewStep ? 'submit' : 'button';
-    const btnKey = `btn-${btnType}`;
     return (
       <div style={{ width: '600px', margin: '0 auto' }}>
         <Paper style={{ padding: '24px', margin: '112px 0' }}>
@@ -118,7 +116,7 @@ class Survey extends React.Component {
               surveyBody: '',
               surveyRecipients: ''
             }}
-            onSubmit={this.onSubmit}
+            onSubmit={this.handleSubmit}
             validationSchema={this.validationSchema}
           >
             {formProps => {
@@ -149,7 +147,7 @@ class Survey extends React.Component {
                       )}
                       <Button
                         style={{ margin: '24px 8px 0 0' }}
-                        key={btnKey}
+                        key={`btn-${btnType}`}
                         type={btnType}
                         variant="contained"
                         color="primary"
