@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchSurveys, fetchRecipients } from '../../actions';
+import { fetchSurveys } from '../../actions';
 import {
   ExpansionPanel,
   ExpansionPanelDetails,
@@ -12,6 +12,7 @@ import {
 import { withStyles } from '@material-ui/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpansionLessPanel from '../ExpansionlessPanel';
+import RecipientsList from './RecipientsList';
 
 const styles = {
   heading: {
@@ -37,13 +38,11 @@ const materialStyles = {
 class SurveyDetails extends Component {
   state = {
     expandedPanel: false,
-    recipientsFetched: false
+    showRecipientsList: false
   };
 
   componentDidMount() {
-    if (!this.props.survey) {
-      this.props.fetchSurveys();
-    }
+    this.props.fetchSurveys();
   }
 
   handlePanelClick = panel => () => {
@@ -77,6 +76,7 @@ class SurveyDetails extends Component {
     }
     const classes = this.props.classes;
     const expanded = this.state.expandedPanel;
+
     return (
       <Container>
         {this.props.survey && (
@@ -172,36 +172,37 @@ class SurveyDetails extends Component {
             <ExpansionLessPanel name="Yes" value={yes} />
             <ExpansionLessPanel name="No" value={no} />
             <ExpansionLessPanel name="Total" value={yes + no} />
-            <Button onClick={this.handleButtonClick(this.props.survey._id)}>
-              Get recipients
-            </Button>
+            {!this.state.showRecipientsList && (
+              <Button
+                onClick={() => this.setState({ showRecipientsList: true })}
+              >
+                Get recipients
+              </Button>
+            )}
           </div>
         )}
-
         {this.props.survey === null && <h1>Fetching survey...</h1>}
         {this.props.survey === false && <h1>Invalid survey id</h1>}
-        {this.state.recipientsFetched &&
-          this.props.recipients.map(recipient => (
-            <span key={recipient._id}>{recipient.email}</span>
-          ))}
+        {this.state.showRecipientsList && (
+          <RecipientsList surveyId={this.props.survey._id}></RecipientsList>
+        )}
       </Container>
     );
   }
 }
 
-const mapStateToProps = ({ surveys, recipients }, ownProps) => {
+const mapStateToProps = ({ surveys }, ownProps) => {
   if (!surveys.length) {
-    return { survey: null, recipients };
+    return { survey: null };
   }
   const survey = surveys.find(
     survey => survey._id === ownProps.match.params.id
   );
   if (!survey) {
-    return { survey: false, recipients };
+    return { survey: false };
   }
   return {
-    survey,
-    recipients
+    survey
   };
 };
 
@@ -209,5 +210,5 @@ const StyledSurveyDetails = withStyles(materialStyles)(SurveyDetails);
 
 export default connect(
   mapStateToProps,
-  { fetchSurveys, fetchRecipients }
+  { fetchSurveys }
 )(StyledSurveyDetails);
