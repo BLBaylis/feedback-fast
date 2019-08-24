@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchSurveys } from '../../actions';
+import { fetchSurveys, deleteSurvey } from '../../actions';
 import {
   ExpansionPanel,
   ExpansionPanelDetails,
@@ -38,12 +38,19 @@ const materialStyles = {
 class SurveyDetails extends Component {
   state = {
     expandedPanel: false,
-    showRecipientsList: false
+    showRecipientsList: false,
+    deleted: false
   };
 
   componentDidMount() {
     this.props.fetchSurveys();
   }
+
+  handleDelete = surveyId => () => {
+    console.log(surveyId);
+    this.props.deleteSurvey(surveyId);
+    this.setState({ deleted: true });
+  };
 
   handlePanelClick = panel => () => {
     this.setState(({ expandedPanel }) => {
@@ -173,11 +180,26 @@ class SurveyDetails extends Component {
             <ExpansionLessPanel name="No" value={no} />
             <ExpansionLessPanel name="Total" value={yes + no} />
             {!this.state.showRecipientsList && (
-              <Button
-                onClick={() => this.setState({ showRecipientsList: true })}
-              >
-                Get recipients
-              </Button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  style={{ margin: '10px' }}
+                  variant="outlined"
+                  onClick={() => this.setState({ showRecipientsList: true })}
+                >
+                  Get recipients
+                </Button>
+                <Button
+                  style={{
+                    margin: '10px',
+                    backgroundColor: 'red',
+                    color: '#fff'
+                  }}
+                  variant="contained"
+                  onClick={this.handleDelete(this.props.survey._id)}
+                >
+                  Delete Survey
+                </Button>
+              </div>
             )}
           </div>
         )}
@@ -186,6 +208,7 @@ class SurveyDetails extends Component {
         {this.state.showRecipientsList && (
           <RecipientsList surveyId={this.props.survey._id}></RecipientsList>
         )}
+        {this.state.deleted && <h1>Survey deleted</h1>}
       </Container>
     );
   }
@@ -210,5 +233,5 @@ const StyledSurveyDetails = withStyles(materialStyles)(SurveyDetails);
 
 export default connect(
   mapStateToProps,
-  { fetchSurveys }
+  { fetchSurveys, deleteSurvey }
 )(StyledSurveyDetails);

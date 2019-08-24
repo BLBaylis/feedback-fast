@@ -8,9 +8,12 @@ const recipientsValidation = emails => {
   if (!emails) {
     return 'This field is required';
   }
-  const { invalidEmails } = emailValidator(emails);
+  const { invalidEmails, duplicateEmails } = emailValidator(emails);
   if (invalidEmails.length > 0) {
     return `The following emails are invalid: ${invalidEmails.join(', ')}`;
+  }
+  if (duplicateEmails.length > 0) {
+    return `The following emails are duplicates: ${duplicateEmails.join(', ')}`;
   }
 };
 

@@ -10,6 +10,7 @@ require('./services/passport');
 const authRoutes = require('./routes/auth');
 const billingRoutes = require('./routes/billing');
 const surveyRoutes = require('./routes/surveys');
+const recipientsRoutes = require('./routes/recipients');
 
 mongoose.connect(keys.mongoURI, { useNewUrlParser: true });
 const app = express();
@@ -28,6 +29,7 @@ app.get('/', (req, res) => res.send('Howdy!'));
 authRoutes(app);
 billingRoutes(app);
 surveyRoutes(app);
+recipientsRoutes(app);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT);

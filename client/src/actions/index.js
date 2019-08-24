@@ -114,19 +114,21 @@ export const fetchSurveys = () => async dispatch => {
 
 export const fetchRecipients = surveyId => async dispatch => {
   try {
-    const res = await fetch('/api/surveys/recipients', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ _id: surveyId })
-    });
+    const res = await fetch(`/api/recipients/${surveyId}`);
     const recipients = await res.json();
-    if (recipients.error) {
-      throw new Error();
-    }
     dispatch({ type: FETCH_RECIPIENTS, payload: recipients });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const deleteSurvey = surveyId => async dispatch => {
+  try {
+    const res = await fetch(`/api/surveys/${surveyId}`, {
+      method: 'DELETE'
+    });
+    const survey = await res.json();
+    dispatch({ type: FETCH_RECIPIENTS, payload: survey });
   } catch (err) {
     console.error(err);
   }

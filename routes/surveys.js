@@ -11,29 +11,18 @@ const Survey = mongoose.model('surveys');
 
 module.exports = (app) => {
   app.get('/api/surveys', requireLogin, async (req, res) => {
-    let surveys;
     try {
-      surveys = await Survey.find({ _user: req.user.id }).select({ recipients: 0 });
+      const surveys = await Survey.find({ _user: req.user.id }).select({ recipients: 0 });
+      if (!surveys) {
+        return res.status(404);
+      }
+      res.send(surveys);
     } catch (err) {
-      return res.json({ error: err });
+      return res.status(500).send(err);
     }
-    if (!surveys) {
-      return res.json({ error: 'No surveys found' });
-    }
-    return res.send(surveys);
   });
 
   app.get('/api/surveys/:surveyId/:response', (req, res) => res.send('Thanks for your feedback!'));
-
-  app.post('/api/surveys/recipients', requireLogin, async (req, res) => {
-    const { _id: surveyId } = req.body;
-    const survey = await Survey.findOne({ _id: surveyId }).select('recipients');
-    if (!survey) {
-      return res.send({ error: 'No Record Found' });
-    }
-    const recipients = survey.recipients.map(({ _id, email }) => ({ _id, email }));
-    return res.send(recipients);
-  });
 
   app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
     const {
@@ -57,7 +46,16 @@ module.exports = (app) => {
       res.status(200).send(user);
     } catch (err) {
       console.error(err);
-      res.status(422);
+      res.status(500);
+    }
+  });
+
+  app.delete('/api/surveys/:surveyId', async (req, res) => {
+    try {
+      const survey = await Survey.deleteOne({ _id: req.params.surveyId }).exec();
+      res.send(survey);
+    } catch (err) {
+      res.status(500).send(err);
     }
   });
 
