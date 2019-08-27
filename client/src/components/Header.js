@@ -1,38 +1,40 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
-import { AppBar, Toolbar, Button } from '@material-ui/core';
+import { Link as MuiLink, Button } from '@material-ui/core';
 import StripePayments from './StripePayments';
+import Logo from './Logo';
+
+const styles = {
+  colorWhite: { color: 'white' },
+  navLink: {
+    color: 'black',
+    margin: '0 1rem'
+  }
+};
 
 const Header = ({ auth }) => {
   return (
-    <Fragment>
-      <AppBar>
-        <Toolbar style={{ justifyContent: 'flex-end' }}>
-          <Button
-            component={RouterLink}
-            to={auth ? '/dashboard/surveys' : '/'}
-            style={{ color: 'white', marginRight: 'auto' }}
-          >
-            FeedbackFast
-          </Button>
-          {auth && <StripePayments />}
-          {auth && <span>{`Credits: ${auth.credits}`}</span>}
-          <Button component={RouterLink} to="/login" style={{ color: 'white' }}>
-            Log in
-          </Button>
-          {auth && (
-            <Button
-              component={'a'}
-              href="/api/logout"
-              style={{ color: 'white' }}
-            >
-              Log Out
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
-    </Fragment>
+    <div style={{ position: 'absolute', top: '1rem' }}>
+      <MuiLink
+        component={RouterLink}
+        to={auth ? '/dashboard/surveys' : '/'}
+        style={{
+          ...styles.colorWhite,
+          marginRight: 'auto',
+          padding: 0
+        }}
+      >
+        <Logo style={{ height: '60px', width: 'auto' }} />
+      </MuiLink>
+      {auth && <StripePayments style={styles.navLink} />}
+      {auth && <span style={styles.navLink}>{`Credits: ${auth.credits}`}</span>}
+      {auth && (
+        <Button component={'a'} href="/api/logout" style={styles.navLink}>
+          Log Out
+        </Button>
+      )}
+    </div>
   );
 };
 

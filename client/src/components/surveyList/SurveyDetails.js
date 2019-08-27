@@ -1,6 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
 import { fetchSurveys, deleteSurvey } from '../../actions';
+import { withStyles } from '@material-ui/styles';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {
   ExpansionPanel,
   ExpansionPanelDetails,
@@ -9,8 +12,7 @@ import {
   Typography,
   Button
 } from '@material-ui/core';
-import { withStyles } from '@material-ui/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import ExpansionLessPanel from '../ExpansionlessPanel';
 import RecipientsList from './RecipientsList';
 
@@ -39,6 +41,7 @@ class SurveyDetails extends Component {
   state = {
     expandedPanel: false,
     showRecipientsList: false,
+    deleteAttempted: false,
     deleted: false
   };
 
@@ -46,10 +49,12 @@ class SurveyDetails extends Component {
     this.props.fetchSurveys();
   }
 
-  handleDelete = surveyId => () => {
-    console.log(surveyId);
-    this.props.deleteSurvey(surveyId);
-    this.setState({ deleted: true });
+  handleDelete = surveyId => async () => {
+    const deleteWasSuccessful = await this.props.deleteSurvey(surveyId);
+    if (!deleteWasSuccessful) {
+      return this.setState({ deleteAttempted: true });
+    }
+    this.setState({ deleteAttempted: true, deleted: true });
   };
 
   handlePanelClick = panel => () => {
@@ -65,7 +70,15 @@ class SurveyDetails extends Component {
   };
 
   render() {
-    if (this.props.survey) {
+    const { survey, classes } = this.props;
+    const {
+      expanded,
+      deleted,
+      deleteAttempted,
+      showRecipientsList
+    } = this.state;
+
+    if (survey) {
       var {
         yes,
         no,
@@ -75,18 +88,15 @@ class SurveyDetails extends Component {
         body,
         subject,
         id
-      } = this.props.survey;
+      } = survey;
       var formattedDateSent = new Date(dateSent).toLocaleDateString();
       var formattedLastResponded = !lastResponded
         ? 'No responses yet!'
         : new Date(lastResponded).toLocaleDateString();
     }
-    const classes = this.props.classes;
-    const expanded = this.state.expandedPanel;
-
     return (
       <Container>
-        {this.props.survey && (
+        {survey && !deleted && (
           <div>
             <Typography
               style={styles.title}
@@ -182,7 +192,7 @@ class SurveyDetails extends Component {
             {!this.state.showRecipientsList && (
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
-                  style={{ margin: '10px' }}
+                  style={{ margin: '15px 0 15px 15px' }}
                   variant="outlined"
                   onClick={() => this.setState({ showRecipientsList: true })}
                 >
@@ -190,12 +200,12 @@ class SurveyDetails extends Component {
                 </Button>
                 <Button
                   style={{
-                    margin: '10px',
+                    margin: '15px 0 15px 15px',
                     backgroundColor: 'red',
                     color: '#fff'
                   }}
                   variant="contained"
-                  onClick={this.handleDelete(this.props.survey._id)}
+                  onClick={this.handleDelete(survey._id)}
                 >
                   Delete Survey
                 </Button>
@@ -203,12 +213,22 @@ class SurveyDetails extends Component {
             )}
           </div>
         )}
-        {this.props.survey === null && <h1>Fetching survey...</h1>}
-        {this.props.survey === false && <h1>Invalid survey id</h1>}
-        {this.state.showRecipientsList && (
-          <RecipientsList surveyId={this.props.survey._id}></RecipientsList>
+        {survey === null && <h1>Fetching survey...</h1>}
+        {survey === false && <h1>Invalid survey ID</h1>}
+        {deleteAttempted && !deleted && (
+          <h1>Deletion unsuccessful. Try again later!</h1>
         )}
-        {this.state.deleted && <h1>Survey deleted</h1>}
+        {showRecipientsList && (
+          <RecipientsList surveyId={survey._id}></RecipientsList>
+        )}
+        {deleted && (
+          <Fragment>
+            <h1>Survey deleted</h1>
+            <Button component={RouterLink} to="/dashboard/surveys">
+              Back to Surveys
+            </Button>
+          </Fragment>
+        )}
       </Container>
     );
   }

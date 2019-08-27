@@ -14,9 +14,9 @@ module.exports = (app) => {
     try {
       const surveys = await Survey.find({ _user: req.user.id }).select({ recipients: 0 });
       if (!surveys) {
-        return res.status(404);
+        return res.status(404).end();
       }
-      res.send(surveys);
+      res.json(surveys);
     } catch (err) {
       return res.status(500).send(err);
     }
@@ -43,17 +43,20 @@ module.exports = (app) => {
       await survey.save();
       req.user.credits -= 1;
       const user = await req.user.save();
-      res.status(200).send(user);
+      res.status(201).json(user);
     } catch (err) {
       console.error(err);
-      res.status(500);
+      res.status(201).end();
     }
   });
 
   app.delete('/api/surveys/:surveyId', async (req, res) => {
     try {
-      const survey = await Survey.deleteOne({ _id: req.params.surveyId }).exec();
-      res.send(survey);
+      const deleteOutcome = await Survey.deleteOne({ _id: req.params.surveyId }).exec();
+      if (deleteOutcome.deletedCount !== 1) {
+        throw new Error('Not deleted');
+      }
+      res.status(204).end();
     } catch (err) {
       res.status(500).send(err);
     }

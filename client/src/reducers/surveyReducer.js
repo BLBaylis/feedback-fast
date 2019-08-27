@@ -1,5 +1,11 @@
-import { FETCH_SURVEYS } from '../actions/constants';
+import { FETCH_SURVEYS, DELETE_SURVEY } from '../actions/constants';
 
 export default (initialState = [], { type, payload }) => {
-  return type === FETCH_SURVEYS ? payload : initialState;
+  if (type === FETCH_SURVEYS) {
+    return payload;
+  }
+  if (type === DELETE_SURVEY) {
+    return initialState.filter(({ _id }) => _id !== payload);
+  }
+  return initialState;
 };

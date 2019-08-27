@@ -14,7 +14,11 @@ class StripePayments extends Component {
         token={this.props.handleToken} //token takes a callback to run once Stripe returns a token
         stripeKey={process.env.REACT_APP_STRIPE_KEY}
       >
-        <Button variant="contained" color="secondary" style={{ color: '#fff' }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          style={{ ...this.props.style, color: '#fff' }}
+        >
           Get Credits
         </Button>
       </StripeCheckout>

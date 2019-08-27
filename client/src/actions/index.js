@@ -1,4 +1,9 @@
-import { FETCH_USER, FETCH_SURVEYS, FETCH_RECIPIENTS } from './constants';
+import {
+  FETCH_USER,
+  FETCH_SURVEYS,
+  FETCH_RECIPIENTS,
+  DELETE_SURVEY
+} from './constants';
 
 export const fetchUser = () => async dispatch => {
   try {
@@ -127,9 +132,13 @@ export const deleteSurvey = surveyId => async dispatch => {
     const res = await fetch(`/api/surveys/${surveyId}`, {
       method: 'DELETE'
     });
-    const survey = await res.json();
-    dispatch({ type: FETCH_RECIPIENTS, payload: survey });
+    if (!res.status === 204) {
+      throw new Error("Response for deleteSurvey request wasn't 204");
+    }
+    dispatch({ type: DELETE_SURVEY, payload: surveyId });
+    return true;
   } catch (err) {
     console.error(err);
+    return false;
   }
 };
