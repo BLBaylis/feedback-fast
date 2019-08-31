@@ -6,7 +6,7 @@ import {
   CardContent,
   CardActions
 } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 const tallyStyles = {
   display: 'flex',
@@ -49,12 +49,11 @@ const SurveyCard = ({ _id: id, title, dateSent, yes, no }) => {
           padding: '1.5rem',
           flex: '1 1 auto',
           textAlign: 'center',
-          justifyContent: 'center',
+          justifyContent: 'space-evenly',
           alignItems: 'center'
         }}
       >
         <Typography
-          gutterBottom
           variant="h6"
           component="h2"
           key={`${title}${dateSent}title${id}`}
@@ -66,11 +65,14 @@ const SurveyCard = ({ _id: id, title, dateSent, yes, no }) => {
           key={`${title}${dateSent}date${id}`}
         >{`Sent: ${new Date(dateSent).toLocaleDateString()}`}</Typography>
         <CardActions style={{ justifyContent: 'center' }}>
-          <Link to={`/dashboard/surveys/${id}`}>
-            <Button color="primary" variant="outlined">
-              More Info
-            </Button>
-          </Link>
+          <Button
+            component={RouterLink}
+            to={`/dashboard/surveys/${id}`}
+            color="primary"
+            variant="outlined"
+          >
+            More Info
+          </Button>
         </CardActions>
       </CardContent>
       <div

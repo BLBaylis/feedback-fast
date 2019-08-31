@@ -22,8 +22,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: '24px',
-    margin: '112px 0'
+    padding: '24px'
   },
   avatar: {
     margin: '8px',
@@ -64,7 +63,7 @@ const Login = ({ handleLogin, history }) => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container className="login-container" component="main" maxWidth="xs">
       <CssBaseline />
       <div style={styles.paper}>
         <Avatar style={styles.avatar}>

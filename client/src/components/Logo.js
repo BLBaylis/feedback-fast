@@ -1,38 +1,40 @@
-import React from 'react';
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
 import SvgIcon from '@material-ui/core/SvgIcon';
 
-const Logo = ({ style = { height: 'auto', width: '100%' } }) => {
+const Logo = ({ style }) => {
   return (
     <SvgIcon
-      viewBox="0 0 150 37.605"
+      viewBox="0 0 176.16 37.511"
       preserveAspectRatio="xMidYMid meet"
-      style={style}
+      css={style.svg}
     >
       <text
-        x="94.058105"
-        y="23.195019"
+        transform="scale(1.001 .99905)"
+        x="106.03111"
+        y="25.246887"
         style={{
           fill: '#fff',
           fontFamily: 'sans-serif',
-          fontSize: '11.289px',
-          fontWeight: 'bold',
+          fontSize: '16.917px',
+          fontHeight: 'bold',
           letterSpacing: '0px',
           lineHeight: '1.25',
-          strokeWidth: '.26458',
+          strokeWidth: '.39649',
           textAlign: 'center',
           textAnchor: 'middle',
           wordSpacing: '0px'
         }}
       >
-        <tspan x="94.058105" y="23.195019" style={{ strokeWidth: '.26458' }}>
-          <tspan x="90.058105" y="23.195019" style={{ strokeWidth: '.26458' }}>
+        <tspan x="106.03111" y="25.246887" style={{ strokeWidth: '.39649' }}>
+          <tspan x="97.503111" y="25.246887" style={{ strokeWidth: '.39649' }}>
             Feedback Fast
           </tspan>
         </tspan>
       </text>
       <g
-        transform="translate(-13.949,-12.118)"
-        style={{ fill: '#2257bf', strokeOpacity: 0 }}
+        transform="translate(-18.968 -12.188)"
+        style={{ fill: style.icon.fill, strokeOpacity: 0 }}
       >
         <path d="m26.614 15.742 6.2675 33.957-2.058-22.731 11.132-0.65481v-4.303l4.2095-9.8222-4.0224 6.5481z" />
         <path d="m37.771 34.487-4.5837 15.061 2.8999-13.564-0.56127-8.3254 7.39-0.46772 3.274-14.967-1.7773 20.393z" />

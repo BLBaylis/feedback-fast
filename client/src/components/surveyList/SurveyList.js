@@ -24,7 +24,6 @@ class SurveyList extends Component {
 
   render() {
     const { surveys } = this.props;
-    console.log(surveys);
     return (
       <Fragment>
         <RouterLink to="/dashboard/surveys/new">
@@ -40,7 +39,7 @@ class SurveyList extends Component {
 
         <Typography
           gutterBottom
-          variant="h3"
+          variant="h4"
           component="h1"
           text="primary"
           style={{ textAlign: 'center', margin: '1.5rem auto' }}

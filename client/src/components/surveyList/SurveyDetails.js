@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
-import { fetchSurveys, deleteSurvey } from '../../actions';
 import { withStyles } from '@material-ui/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {
@@ -12,7 +11,8 @@ import {
   Typography,
   Button
 } from '@material-ui/core';
-
+import { fetchSurveys, deleteSurvey } from '../../actions';
+import DeleteDialog from './DeleteDialog';
 import ExpansionLessPanel from '../ExpansionlessPanel';
 import RecipientsList from './RecipientsList';
 
@@ -72,7 +72,7 @@ class SurveyDetails extends Component {
   render() {
     const { survey, classes } = this.props;
     const {
-      expanded,
+      expandedPanel,
       deleted,
       deleteAttempted,
       showRecipientsList
@@ -107,7 +107,7 @@ class SurveyDetails extends Component {
               Details of {title}
             </Typography>
             <ExpansionPanel
-              expanded={expanded === 'panel1'}
+              expanded={expandedPanel === 'panel1'}
               onChange={this.handlePanelClick('panel1')}
             >
               <ExpansionPanelSummary
@@ -132,7 +132,7 @@ class SurveyDetails extends Component {
               </ExpansionPanelDetails>
             </ExpansionPanel>
             <ExpansionPanel
-              expanded={expanded === 'panel2'}
+              expanded={expandedPanel === 'panel2'}
               onChange={this.handlePanelClick('panel2')}
             >
               <ExpansionPanelSummary
@@ -157,7 +157,7 @@ class SurveyDetails extends Component {
               </ExpansionPanelDetails>
             </ExpansionPanel>
             <ExpansionPanel
-              expanded={expanded === 'panel3'}
+              expanded={expandedPanel === 'panel3'}
               onChange={this.handlePanelClick('panel3')}
             >
               <ExpansionPanelSummary
@@ -189,8 +189,9 @@ class SurveyDetails extends Component {
             <ExpansionLessPanel name="Yes" value={yes} />
             <ExpansionLessPanel name="No" value={no} />
             <ExpansionLessPanel name="Total" value={yes + no} />
-            {!this.state.showRecipientsList && (
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {!this.state.showRecipientsList && (
                 <Button
                   style={{ margin: '15px 0 15px 15px' }}
                   variant="outlined"
@@ -198,21 +199,12 @@ class SurveyDetails extends Component {
                 >
                   Get recipients
                 </Button>
-                <Button
-                  style={{
-                    margin: '15px 0 15px 15px',
-                    backgroundColor: 'red',
-                    color: '#fff'
-                  }}
-                  variant="contained"
-                  onClick={this.handleDelete(survey._id)}
-                >
-                  Delete Survey
-                </Button>
-              </div>
-            )}
+              )}
+              <DeleteDialog handleDelete={this.handleDelete(survey._id)} />
+            </div>
           </div>
         )}
+
         {survey === null && <h1>Fetching survey...</h1>}
         {survey === false && <h1>Invalid survey ID</h1>}
         {deleteAttempted && !deleted && (

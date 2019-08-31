@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
-import Header from './Header';
 import LandingPage from './LandingPage';
 import Dashboard from './Dashboard';
 import Login from './Login';
@@ -20,7 +19,6 @@ class App extends Component {
     return (
       <Fragment>
         <BrowserRouter>
-          <Header />
           <Route path="/" exact component={LandingPage} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />

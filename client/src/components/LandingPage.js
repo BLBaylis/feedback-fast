@@ -1,39 +1,71 @@
-import React, { Fragment } from 'react';
+/** @jsx jsx */
+import { jsx } from '@emotion/core';
+import { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink, Redirect } from 'react-router-dom';
-import { Button, Container, Typography } from '@material-ui/core';
-import background from '../assets/background.png';
-
-const containerStyles = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  minHeight: '100%',
-  position: 'relative',
-  width: '50%',
-  margin: '0 0 0 auto'
-};
+import {
+  Link as MuiLink,
+  Button,
+  Container,
+  Typography
+} from '@material-ui/core';
+import Logo from './Logo';
 
 const LandingPage = ({ auth }) => {
   return (
     <Fragment>
       <div className="img-container"></div>
-      <Container className="content-container" style={containerStyles}>
+      <Container
+        className="content-container"
+        css={{
+          '&&': {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            position: 'relative',
+            width: '100%',
+            '@media (min-width: 1024px)': {
+              width: '50%',
+              margin: '0 0 0 auto',
+              height: '100%',
+              background: 'none'
+            }
+          }
+        }}
+      >
         <div
-          style={{
+          css={{
+            position: 'relative',
+            top: '2.5%',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            height: '95%',
+            '@media (min-width : 1024px)': {
+              top: 0
+            }
           }}
         >
-          <Typography variant="h2" style={{ color: '#fff' }}>
+          <Typography
+            variant="h2"
+            css={{
+              '&&': {
+                color: ' #fff',
+                textAlign: 'center',
+                '@media (max-width: 1023px)': {
+                  fontSize: ' 2.5rem'
+                }
+              }
+            }}
+          >
             Knowledge is power
           </Typography>
           <Typography
             variant="h6"
             style={{
-              marginTop: '20px',
+              marginTop: '30px',
               color: '#fff',
               textAlign: 'center',
               maxWidth: '400px'
@@ -44,7 +76,7 @@ const LandingPage = ({ auth }) => {
           </Typography>
           <div
             style={{
-              marginTop: '20px',
+              marginTop: '30px',
               display: 'flex',
               justifyContent: 'center',
               width: '100%',
@@ -57,6 +89,7 @@ const LandingPage = ({ auth }) => {
                 padding: '12px 32px',
                 margin: '0 10px'
               }}
+              color="secondary"
               size="large"
               variant="contained"
               component={RouterLink}
@@ -70,6 +103,7 @@ const LandingPage = ({ auth }) => {
                 padding: '12px 32px',
                 margin: '0 10px'
               }}
+              color="secondary"
               size="large"
               variant="contained"
               component={RouterLink}
@@ -82,6 +116,46 @@ const LandingPage = ({ auth }) => {
           {auth && <Redirect to="/dashboard/surveys" />}
         </div>
       </Container>
+      <div
+        css={{
+          position: 'absolute',
+          width: '100%',
+          top: 0,
+          //background: 'steelblue',
+          '@media (min-width: 1024px)': {
+            background: 'none'
+          }
+        }}
+      >
+        <MuiLink
+          component={RouterLink}
+          to={auth ? '/dashboard/surveys' : '/'}
+          css={{
+            '&&': {
+              paddingTop: '0.5rem',
+              display: 'inline-block',
+              maxWidth: '100%'
+            }
+          }}
+        >
+          <Logo
+            style={{
+              svg: {
+                '&&': {
+                  height: '60px',
+                  width: 'auto',
+                  '@media (min-width : 1024px)': {
+                    height: '60px'
+                  }
+                }
+              },
+              icon: {
+                fill: '#f50057'
+              }
+            }}
+          />
+        </MuiLink>
+      </div>
     </Fragment>
   );
 };

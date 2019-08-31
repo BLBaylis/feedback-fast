@@ -90,13 +90,21 @@ class RecipientsList extends Component {
     const recipientsLength = this.props.recipients.length;
     const numOfPages = Math.ceil(recipientsLength / itemsPerPage);
     return (
-      <Paper style={{ padding: '1.5rem' }}>
-        <div>
+      <Paper style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <span>{`Displaying ${this.getPageDisplay(
+            recipientsLength,
+            itemsPerPage,
+            currPage
+          )} out of ${recipientsLength}`}</span>
           <form onSubmit={this.handleSubmit}>
-            <FormControl style={{ width: '300px', display: 'flex' }}>
-              <InputLabel shrink htmlFor="itemsPerPage">
-                Items per Page
-              </InputLabel>
+            <FormControl>
               <Select
                 value={itemsPerPage}
                 onChange={event => this.handleChange(event, itemsPerPage)}
@@ -104,25 +112,26 @@ class RecipientsList extends Component {
                 displayEmpty
                 name="itemsPerPage"
               >
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-                <MenuItem value={100}>100</MenuItem>
-                <MenuItem value={500}>500</MenuItem>
-                <MenuItem value={1000}>1000</MenuItem>
+                <MenuItem value={10}>{`Show ${10} items per page`}</MenuItem>
+                <MenuItem value={50}>{`Show ${50} items per page`}</MenuItem>
+                <MenuItem value={100}>{`Show ${100} items per page`}</MenuItem>
+                <MenuItem value={500}>{`Show ${500} items per page`}</MenuItem>
+                <MenuItem
+                  value={1000}
+                >{`Show ${1000} items per page`}</MenuItem>
               </Select>
             </FormControl>
           </form>
         </div>
-        <div style={{ margin: '1rem 0' }}>
-          {`Displaying ${this.getPageDisplay(
-            recipientsLength,
-            itemsPerPage,
-            currPage
-          )} out of ${recipientsLength}`}
-        </div>
-        <div
-          style={{ margin: '1rem 0' }}
-        >{`Page ${currPage} of ${numOfPages}`}</div>
+        {recipientsLength && (
+          <Grid
+            container
+            component="ul"
+            style={{ listStyle: 'none', padding: 0, margin: '2rem 0' }}
+          >
+            {this.renderRecipients(itemsPerPage)}
+          </Grid>
+        )}
         <div
           style={{
             margin: '1rem',
@@ -143,17 +152,6 @@ class RecipientsList extends Component {
               );
             })}
         </div>
-        {recipientsLength && (
-          <Fragment>
-            <Grid
-              container
-              component="ul"
-              style={{ listStyle: 'none', padding: 0 }}
-            >
-              {this.renderRecipients(itemsPerPage)}
-            </Grid>
-          </Fragment>
-        )}
       </Paper>
     );
   }

@@ -24,6 +24,7 @@
     ]
   },
   "dependencies": {
+    "@emotion/core": "^10.0.16",
     "formik": "^1.5.8",
     "formik-material-ui": "0.0.20",
     "http-proxy-middleware": "^0.19.1",

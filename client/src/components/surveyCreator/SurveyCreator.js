@@ -1,159 +1,177 @@
-import React from 'react';
+/** @jsx jsx */
+import { useState } from 'react';
+import { jsx } from '@emotion/core';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
 import { submitSurvey } from '../../actions';
 import { withRouter } from 'react-router-dom';
-import {
-  Button,
-  Paper,
-  Stepper,
-  Step,
-  StepLabel,
-  Typography
-} from '@material-ui/core';
-import EmailCreation from './EmailCreation';
-import EmailRecipients from './EmailRecipients';
-import Review from './Review';
+import { Button, Paper, Typography, useMediaQuery } from '@material-ui/core';
+import { KeyboardArrowRight } from '@material-ui/icons';
+import { ComposeEmail, EmailRecipients, Review } from './FormPages';
+import { Stepper, MobileStepper } from './Steppers';
 
-class Survey extends React.Component {
-  state = {
-    activeStep: 0
-  };
+const Survey = ({ submitSurvey, history }) => {
+  const [activeStep, setActiveStep] = useState(0);
+  const isMobile = !useMediaQuery('(min-width:650px)');
+  const steps = ['Survey Details', 'Recipients', 'Review your survey'];
 
-  steps = ['Survey Details', 'Recipients', 'Review your survey'];
-
-  pageFields = [
-    ['surveyName', 'surveySubject', 'surveyBody'],
-    ['surveyRecipients'],
-    ['surveyName', 'surveySubject', 'surveyBody', 'surveyRecipients']
+  const pageFields = [
+    ['name', 'subject', 'body'],
+    ['recipients'],
+    ['name', 'subject', 'body', 'recipients']
   ];
 
-  setActiveStep = () => direction => {
-    const stepChange = direction === 'back' ? -1 : 1;
-    this.setState(prevState => ({
-      activeStep: prevState.activeStep + stepChange
-    }));
-  };
-
-  getStepContent = (step, formProps) => {
-    const props = {
-      formProps,
-      updatePage: this.updatePage,
-      checkFieldIsValidated: this.checkFieldIsValidated
-    };
+  const getStepContent = (step, formProps) => {
     switch (step) {
       case 0:
-        return <EmailCreation {...props} />;
+        return <ComposeEmail isMobile={isMobile} />;
       case 1:
-        return <EmailRecipients {...props} />;
+        return <EmailRecipients isMobile={isMobile} />;
       case 2:
-        return <Review {...props} />;
+        return <Review formProps={formProps} />;
       default:
         throw new Error('Unknown step');
     }
   };
 
-  handleSubmit = async (values, { setSubmitting }) => {
-    const {
-      surveyName: title,
-      surveySubject: subject,
-      surveyBody: body,
-      surveyRecipients: recipients
-    } = values;
-    await this.props.submitSurvey(
+  const handleStep = newActiveStep => () => setActiveStep(newActiveStep);
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const { name: title, subject, body, recipients } = values;
+    await submitSurvey(
       {
         title,
         subject,
         body,
         recipients: recipients.split(',').map(email => email.trim())
       },
-      this.props.history
+      history
     );
     setSubmitting(false);
   };
 
-  checkFieldIsValidated = (fieldName, { errors, touched }) => {
+  const checkFieldIsValidated = (fieldName, { errors, touched }) => {
     return touched[fieldName] === true && errors[fieldName] === undefined;
   };
 
-  validationSchema = () => {
+  const validationSchema = () => {
     return yup.object().shape({
-      surveyName: yup
+      name: yup
         .string()
         .max(75, 'Max 75 characters')
         .required('This field is required'),
-      surveySubject: yup
+      subject: yup
         .string()
         .max(75, 'Max 75 characters')
         .required('This field is required'),
-      surveyBody: yup.string().required('This field is required'),
-      surveyRecipients: yup.string().required('This field is required')
+      body: yup.string().required('This field is required'),
+      recipients: yup.string().required('This field is required')
     });
   };
-
-  render() {
-    const {
-      steps,
-      pageFields,
-      getStepContent,
-      setActiveStep,
-      checkFieldIsValidated
-    } = this;
-    const { activeStep } = this.state;
-    const isStep1 = activeStep === 0;
-    const isReviewStep = activeStep === 2;
-    const allStepsDone = activeStep === steps.length;
-    const btnType = isReviewStep ? 'submit' : 'button';
-    return (
-      <div style={{ width: '600px', margin: '0 auto' }}>
-        <Paper style={{ padding: '24px', margin: '112px 0' }}>
-          {allStepsDone && <Typography variant="h6">Survey Sent!</Typography>}
-          <Formik
-            initialValues={{
-              surveyName: '',
-              surveySubject: '',
-              surveyBody: '',
-              surveyRecipients: ''
-            }}
-            onSubmit={this.handleSubmit}
-            validationSchema={this.validationSchema}
-          >
-            {formProps => {
-              return (
-                <Form>
-                  {!allStepsDone && (
-                    <Stepper activeStep={activeStep}>
-                      {steps.map(label => (
-                        <Step key={label}>
-                          <StepLabel>{label}</StepLabel>
-                        </Step>
-                      ))}
-                    </Stepper>
-                  )}
-                  {!allStepsDone && getStepContent(activeStep, formProps)}
-                  {!allStepsDone && (
-                    <div
-                      style={{ display: 'flex', justifyContent: 'flex-end' }}
-                    >
-                      {!isStep1 && (
-                        <Button
-                          type="button"
-                          style={{ margin: '24px 8px 0 0' }}
-                          onClick={setActiveStep('back')}
-                        >
-                          Back
-                        </Button>
-                      )}
+  const isStep1 = activeStep === 0;
+  const isReviewStep = activeStep === 2;
+  const allStepsDone = activeStep === steps.length;
+  const btnType = isReviewStep ? 'submit' : 'button';
+  const WrapperComponent = isMobile ? 'div' : Paper;
+  return (
+    <div
+      css={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        height: '100%',
+        width: '100%',
+        '@media (min-width : 650px) and (min-height: 650px)': {
+          alignItems: isReviewStep ? 'flex-start' : 'center'
+        }
+      }}
+    >
+      <WrapperComponent
+        css={{
+          padding: 0,
+          width: '100%',
+          height: '100%',
+          '@media (min-width: 650px)': {
+            padding: '24px',
+            margin: '0 auto',
+            height: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            maxWidth: '625px',
+            marginBottom: '1.5rem'
+          }
+        }}
+      >
+        {allStepsDone && <Typography variant="h6">Survey Sent!</Typography>}
+        <Formik
+          initialValues={{
+            name: '',
+            subject: '',
+            body: '',
+            recipients: ''
+          }}
+          onSubmit={handleSubmit}
+          validationSchema={validationSchema}
+        >
+          {formProps => {
+            return (
+              <Form style={{ width: '100%', height: '100%' }}>
+                {!allStepsDone && !isMobile && (
+                  <Stepper steps={steps} activeStep={activeStep} />
+                )}
+                {!allStepsDone && getStepContent(activeStep, formProps)}
+                {!allStepsDone && !isMobile && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    {!isStep1 && (
                       <Button
+                        type="button"
                         style={{ margin: '24px 8px 0 0' }}
-                        key={`btn-${btnType}`}
+                        onClick={handleStep(activeStep - 1)}
+                      >
+                        Back
+                      </Button>
+                    )}
+                    <Button
+                      style={{ margin: '24px 8px 0 0' }}
+                      key={`btn-${btnType}`}
+                      type={btnType}
+                      variant="contained"
+                      color="primary"
+                      onClick={
+                        btnType === 'button' ? handleStep(activeStep + 1) : null
+                      }
+                      disabled={
+                        formProps.isValidating ||
+                        !pageFields[activeStep].every(fieldName =>
+                          checkFieldIsValidated(fieldName, formProps)
+                        )
+                      }
+                    >
+                      {isReviewStep ? 'Send Survey' : 'Next'}
+                    </Button>
+                  </div>
+                )}
+                {!allStepsDone && isMobile && (
+                  <MobileStepper
+                    style={{
+                      position: 'fixed',
+                      bottom: 0,
+                      left: 0,
+                      width: '100vw',
+                      boxSizing: 'border-box'
+                    }}
+                    activeStep={activeStep}
+                    handleStep={handleStep}
+                    nextButton={
+                      <Button
+                        key={`btn-${btnType}-mob`}
                         type={btnType}
-                        variant="contained"
-                        color="primary"
                         onClick={
-                          btnType === 'button' ? setActiveStep('next') : null
+                          btnType === 'button'
+                            ? handleStep(activeStep + 1)
+                            : null
                         }
+                        size="small"
                         disabled={
                           formProps.isValidating ||
                           !pageFields[activeStep].every(fieldName =>
@@ -161,19 +179,20 @@ class Survey extends React.Component {
                           )
                         }
                       >
-                        {isReviewStep ? 'Send Survey' : 'Next'}
+                        {isReviewStep ? 'Send' : 'Next'}
+                        <KeyboardArrowRight />
                       </Button>
-                    </div>
-                  )}
-                </Form>
-              );
-            }}
-          </Formik>
-        </Paper>
-      </div>
-    );
-  }
-}
+                    }
+                  />
+                )}
+              </Form>
+            );
+          }}
+        </Formik>
+      </WrapperComponent>
+    </div>
+  );
+};
 
 export default withRouter(
   connect(

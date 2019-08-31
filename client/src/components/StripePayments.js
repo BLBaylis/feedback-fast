@@ -16,7 +16,7 @@ class StripePayments extends Component {
       >
         <Button
           variant="contained"
-          color="secondary"
+          color="primary"
           style={{ ...this.props.style, color: '#fff' }}
         >
           Get Credits
