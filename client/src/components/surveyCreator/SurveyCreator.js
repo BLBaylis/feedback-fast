@@ -6,7 +6,13 @@ import * as yup from 'yup';
 import { connect } from 'react-redux';
 import { submitSurvey } from '../../actions';
 import { withRouter } from 'react-router-dom';
-import { Button, Paper, Typography, useMediaQuery } from '@material-ui/core';
+import {
+  Button,
+  Paper,
+  Typography,
+  Container,
+  useMediaQuery
+} from '@material-ui/core';
 import { KeyboardArrowRight } from '@material-ui/icons';
 import { ComposeEmail, EmailRecipients, Review } from './FormPages';
 import { Stepper, MobileStepper } from './Steppers';
@@ -73,7 +79,7 @@ const Survey = ({ submitSurvey, history }) => {
   const isReviewStep = activeStep === 2;
   const allStepsDone = activeStep === steps.length;
   const btnType = isReviewStep ? 'submit' : 'button';
-  const WrapperComponent = isMobile ? 'div' : Paper;
+  const WrapperComponent = isMobile ? Container : Paper;
   return (
     <div
       css={{
@@ -88,7 +94,6 @@ const Survey = ({ submitSurvey, history }) => {
     >
       <WrapperComponent
         css={{
-          padding: 0,
           width: '100%',
           height: '100%',
           '@media (min-width: 650px)': {

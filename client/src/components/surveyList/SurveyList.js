@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
-import { Fab, Grid, Typography } from '@material-ui/core';
+import { Fab, Grid, Typography, Container } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import { fetchSurveys } from '../../actions';
 import SurveyCard from './SurveyCard';
@@ -25,7 +25,7 @@ class SurveyList extends Component {
   render() {
     const { surveys } = this.props;
     return (
-      <Fragment>
+      <Container>
         <RouterLink to="/dashboard/surveys/new">
           <Fab
             color="primary"
@@ -46,14 +46,10 @@ class SurveyList extends Component {
         >
           Surveys
         </Typography>
-        <Grid
-          container
-          spacing={3}
-          style={{ marginBottom: '12px' } /*spacing * 4px*/}
-        >
+        <Grid container spacing={3} style={{ marginBottom: '12px' }}>
           {this.createSurveys(surveys)}
         </Grid>
-      </Fragment>
+      </Container>
     );
   }
 }

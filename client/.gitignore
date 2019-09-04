@@ -5,6 +5,9 @@
 /.pnp
 .pnp.js
 
+
+/src/utils/generateSurveyWithManyEmails.txt
+
 # testing
 /coverage
 
