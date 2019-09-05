@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
   Grid,
@@ -12,9 +12,15 @@ import {
   useMediaQuery
 } from '@material-ui/core';
 
+import { getRecipients, getIsFetching, getError } from '../../reducers';
 import { fetchRecipients } from '../../actions';
 
-const RecipientsList = ({ surveyId, fetchRecipients, recipients }) => {
+const RecipientsList = ({
+  surveyId,
+  fetchRecipients,
+  recipients,
+  isFetching
+}) => {
   const [currPage, setCurrPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -47,7 +53,7 @@ const RecipientsList = ({ surveyId, fetchRecipients, recipients }) => {
         xs={12}
         sm={4}
         md={2}
-        key={`${recipient._id}-grid`}
+        key={`${recipient.id}-grid`}
         component="li"
         css={{
           padding: '10px',
@@ -73,81 +79,97 @@ const RecipientsList = ({ surveyId, fetchRecipients, recipients }) => {
 
   const numOfPages = Math.ceil(recipients.length / itemsPerPage) || 1;
   const Wrapper = isMobile ? 'div' : Paper;
-  console.log(isMobile);
   return (
     <Wrapper style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
-        <span
-          css={{ margin: '0 1.5rem 1.5rem 0' }}
-        >{`Displaying ${getPageDisplay()} out of ${recipients.length}`}</span>
-        <form onSubmit={handleSubmit}>
-          <FormControl css={{ margin: '0 1.5rem 1.5rem 0' }}>
-            <Select
-              value={itemsPerPage}
-              onChange={handleChange}
-              input={<Input name="itemsPerPage" id="itemsPerPage" />}
-              name="itemsPerPage"
-            >
-              <MenuItem value={10}>{`Show ${10} items per page`}</MenuItem>
-              <MenuItem value={50}>{`Show ${50} items per page`}</MenuItem>
-              <MenuItem value={100}>{`Show ${100} items per page`}</MenuItem>
-              <MenuItem value={500}>{`Show ${500} items per page`}</MenuItem>
-              <MenuItem value={1000}>{`Show ${1000} items per page`}</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl
-            css={{
-              marginBottom: '1.5rem'
+      {isFetching && <h1>Loading...</h1>}
+      {!isFetching && recipients.length && (
+        <Fragment>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              alignItems: 'center'
             }}
           >
-            <Select
-              value={currPage}
-              onChange={handleChange}
-              input={<Input name="currPage" id="currPage" />}
-              displayEmpty
-              name="currPage"
-            >
-              {Array(numOfPages)
-                .fill(null)
-                .map((curr, index) => {
-                  return (
-                    <MenuItem
-                      key={`pageNumSelect${index + 1}`}
-                      value={index + 1}
-                    >{`Page ${index + 1}`}</MenuItem>
-                  );
-                })}
-            </Select>
-          </FormControl>
-        </form>
-      </div>
-      {recipients.length && (
-        <Grid
-          container
-          component="ul"
-          style={{ listStyle: 'none', padding: 0, margin: '2rem 0' }}
-        >
-          {renderRecipients()}
-        </Grid>
+            <span
+              css={{ margin: '0 1.5rem 1.5rem 0' }}
+            >{`Displaying ${getPageDisplay()} out of ${
+              recipients.length
+            }`}</span>
+            <form onSubmit={handleSubmit}>
+              <FormControl css={{ margin: '0 1.5rem 1.5rem 0' }}>
+                <Select
+                  value={itemsPerPage}
+                  onChange={handleChange}
+                  input={<Input name="itemsPerPage" id="itemsPerPage" />}
+                  name="itemsPerPage"
+                >
+                  <MenuItem value={10}>{`Show ${10} items per page`}</MenuItem>
+                  <MenuItem value={50}>{`Show ${50} items per page`}</MenuItem>
+                  <MenuItem
+                    value={100}
+                  >{`Show ${100} items per page`}</MenuItem>
+                  <MenuItem
+                    value={500}
+                  >{`Show ${500} items per page`}</MenuItem>
+                  <MenuItem
+                    value={1000}
+                  >{`Show ${1000} items per page`}</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl
+                css={{
+                  marginBottom: '1.5rem'
+                }}
+              >
+                <Select
+                  value={currPage}
+                  onChange={handleChange}
+                  input={<Input name="currPage" id="currPage" />}
+                  displayEmpty
+                  name="currPage"
+                >
+                  {Array(numOfPages)
+                    .fill(null)
+                    .map((curr, index) => {
+                      return (
+                        <MenuItem
+                          key={`pageNumSelect${index + 1}`}
+                          value={index + 1}
+                        >{`Page ${index + 1}`}</MenuItem>
+                      );
+                    })}
+                </Select>
+              </FormControl>
+            </form>
+          </div>
+          <Grid
+            container
+            component="ul"
+            style={{ listStyle: 'none', padding: 0, margin: '2rem 0' }}
+          >
+            {renderRecipients()}
+          </Grid>
+          <div
+            style={{
+              margin: '1rem',
+              textAlign: 'center'
+            }}
+          ></div>
+        </Fragment>
       )}
-      <div
-        style={{
-          margin: '1rem',
-          textAlign: 'center'
-        }}
-      ></div>
     </Wrapper>
   );
 };
 
+const mapStateToProps = state => ({
+  recipients: getRecipients(state),
+  isFetching: getIsFetching(state, 'recipients'),
+  error: getError(state, 'recipients')
+});
+
 export default connect(
-  ({ recipients }) => ({ recipients }),
+  mapStateToProps,
   { fetchRecipients }
 )(RecipientsList);

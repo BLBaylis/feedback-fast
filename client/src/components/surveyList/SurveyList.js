@@ -4,26 +4,34 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Fab, Grid, Typography, Container } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import { fetchSurveys } from '../../actions';
+import { getSurveys, getIsFetching, getError } from '../../reducers';
 import SurveyCard from './SurveyCard';
+import ErrorBoundary from '../ErrorBoundary';
 
 class SurveyList extends Component {
   componentDidMount() {
     this.props.fetchSurveys();
   }
 
-  createSurveys = surveys => {
-    return surveys.reverse().map((props, index) => {
-      const { title } = props;
+  createSurveys = () => {
+    return this.props.surveys.reverse().map(survey => {
+      const { id } = survey;
       return (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={`${title}grid-${index}`}>
-          <SurveyCard {...props} />
+        <Grid item xs={12} sm={6} md={4} lg={3} key={`grid-${id}`}>
+          <SurveyCard id={id} />
         </Grid>
       );
     });
   };
 
   render() {
-    const { surveys } = this.props;
+    const { isFetching, surveys, error } = this.props;
+    if (error.status) {
+      throw new Error(error.status);
+    }
+    if (isFetching && !surveys.length) {
+      return <h1>Loading...</h1>;
+    }
     return (
       <Container>
         <RouterLink to="/dashboard/surveys/new">
@@ -47,14 +55,18 @@ class SurveyList extends Component {
           Surveys
         </Typography>
         <Grid container spacing={3} style={{ marginBottom: '12px' }}>
-          {this.createSurveys(surveys)}
+          {this.createSurveys()}
         </Grid>
       </Container>
     );
   }
 }
 
-const mapStateToProps = ({ surveys }) => ({ surveys });
+const mapStateToProps = state => ({
+  surveys: getSurveys(state),
+  isFetching: getIsFetching(state, 'surveys'),
+  error: getError(state, 'surveys')
+});
 
 export default connect(
   mapStateToProps,

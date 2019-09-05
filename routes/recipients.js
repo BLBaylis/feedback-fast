@@ -8,9 +8,9 @@ module.exports = (app) => {
     const { surveyId } = req.params;
     const survey = await Survey.findOne({ _id: surveyId }).select('recipients');
     if (!survey) {
-      return res.send({ error: 'No Record Found' });
+      return res.status(404).end();
     }
     const recipients = survey.recipients.map(({ _id, email }) => ({ _id, email }));
-    return res.send(recipients);
+    return res.status(200).send(recipients);
   });
 };

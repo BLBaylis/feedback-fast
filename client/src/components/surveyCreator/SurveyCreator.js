@@ -4,7 +4,7 @@ import { jsx } from '@emotion/core';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
-import { submitSurvey } from '../../actions';
+import { createSurvey } from '../../actions';
 import { withRouter } from 'react-router-dom';
 import {
   Button,
@@ -17,7 +17,7 @@ import { KeyboardArrowRight } from '@material-ui/icons';
 import { ComposeEmail, EmailRecipients, Review } from './FormPages';
 import { Stepper, MobileStepper } from './Steppers';
 
-const Survey = ({ submitSurvey, history }) => {
+const Survey = ({ createSurvey, history }) => {
   const [activeStep, setActiveStep] = useState(0);
   const isMobile = !useMediaQuery('(min-width:650px)');
   const steps = ['Survey Details', 'Recipients', 'Review your survey'];
@@ -45,7 +45,7 @@ const Survey = ({ submitSurvey, history }) => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const { name: title, subject, body, recipients } = values;
-    await submitSurvey(
+    await createSurvey(
       {
         title,
         subject,
@@ -202,6 +202,6 @@ const Survey = ({ submitSurvey, history }) => {
 export default withRouter(
   connect(
     null,
-    { submitSurvey }
+    { createSurvey }
   )(Survey)
 );

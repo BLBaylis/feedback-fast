@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions';
+import { getUser, getIsFetching, getError } from '../reducers';
 import LandingPage from './LandingPage';
 import Dashboard from './Dashboard';
 import Login from './Login';
@@ -14,16 +15,19 @@ class App extends Component {
   }
 
   render() {
-    console.log('APP AUTH', this.props);
-    const auth = this.props.auth;
+    const { user } = this.props;
     return (
       <Fragment>
         <BrowserRouter>
           <Route path="/" exact component={LandingPage} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
-          {auth !== null && (
-            <PrivateRoute path="/dashboard" auth={auth} component={Dashboard} />
+          {user !== null && (
+            <PrivateRoute
+              path="/dashboard"
+              auth={!!user}
+              component={Dashboard}
+            />
           )}
         </BrowserRouter>
       </Fragment>
@@ -31,7 +35,13 @@ class App extends Component {
   }
 }
 
+const mapStateToProps = state => ({
+  user: getUser(state),
+  isFetching: getIsFetching(state, 'user'),
+  error: getError(state, 'user')
+});
+
 export default connect(
-  ({ auth }) => ({ auth }),
+  mapStateToProps,
   { fetchUser }
 )(App);

@@ -1,21 +1,60 @@
+import { normalize } from 'normalizr';
+import * as schema from './schema';
+import { getIsFetching } from '../reducers';
 import {
-  FETCH_USER,
-  FETCH_SURVEYS,
-  FETCH_RECIPIENTS,
-  DELETE_SURVEY
+  FETCH_USER_REQUEST,
+  FETCH_USER_SUCCESS,
+  FETCH_USER_FAILURE,
+  FETCH_SURVEYS_REQUEST,
+  FETCH_SURVEYS_SUCCESS,
+  FETCH_SURVEYS_FAILURE,
+  CREATE_SURVEY,
+  FETCH_TOKEN,
+  DELETE_SURVEY,
+  REGISTER_REQUEST,
+  REGISTER_COMPLETE,
+  LOGIN_REQUEST,
+  LOGIN_COMPLETE,
+  FETCH_RECIPIENTS_REQUEST,
+  FETCH_RECIPIENTS_SUCCESS,
+  FETCH_RECIPIENTS_FAILURE
 } from './constants';
 
-export const fetchUser = () => async dispatch => {
-  try {
-    const res = await fetch('/api/user-info');
-    var userProfile = await res.json();
-  } catch (err) {
-    dispatch({ type: FETCH_USER, payload: false });
+const makeApiFetchRequest = async endpoint => {
+  const res = await fetch(endpoint);
+  if (!res.ok) {
+    const { status, statusText } = res;
+    const error = new Error('Network Problem');
+    Object.assign(error, {
+      status,
+      statusText
+    });
+    throw error;
   }
-  dispatch({ type: FETCH_USER, payload: userProfile });
+  return await res.json();
 };
 
-export const handleRegister = (values, history) => async dispatch => {
+export const fetchUser = () => async (dispatch, getState) => {
+  if (getIsFetching(getState(), 'user')) {
+    return Promise.resolve;
+  }
+  dispatch({ type: FETCH_USER_REQUEST });
+  try {
+    const userProfile = await makeApiFetchRequest('/api/user-info');
+    dispatch({ type: FETCH_USER_SUCCESS, payload: userProfile });
+  } catch (err) {
+    dispatch({ type: FETCH_USER_FAILURE, payload: err });
+  }
+};
+
+export const handleRegister = (values, history) => async (
+  dispatch,
+  getState
+) => {
+  if (getIsFetching(getState(), 'user')) {
+    return Promise.resolve;
+  }
+  dispatch({ type: REGISTER_REQUEST });
   try {
     const res = await fetch('/api/register', {
       method: 'POST',
@@ -26,19 +65,22 @@ export const handleRegister = (values, history) => async dispatch => {
       body: JSON.stringify(values)
     });
     const userProfile = await res.json();
-    console.log(userProfile);
-    if (userProfile.error) {
-      throw new Error();
-    }
+    dispatch({ type: REGISTER_COMPLETE, payload: userProfile });
     history.push('/dashboard/surveys');
-    dispatch({ type: FETCH_USER, payload: userProfile });
   } catch (err) {
     console.log(err);
   }
 };
 
-export const handleLogin = (credentials, history) => async dispatch => {
+export const handleLogin = (credentials, history) => async (
+  dispatch,
+  getState
+) => {
   const { email, password } = credentials;
+  if (getIsFetching(getState(), 'user')) {
+    return Promise.resolve;
+  }
+  dispatch({ type: LOGIN_REQUEST });
   try {
     const res = await fetch('/api/login', {
       method: 'POST',
@@ -52,11 +94,8 @@ export const handleLogin = (credentials, history) => async dispatch => {
       })
     });
     const userProfile = await res.json();
-    if (userProfile.error) {
-      throw new Error();
-    }
+    dispatch({ type: LOGIN_COMPLETE, payload: userProfile });
     history.push('/dashboard/surveys');
-    dispatch({ type: FETCH_USER, payload: userProfile });
   } catch (err) {
     console.error(err);
   }
@@ -73,16 +112,34 @@ export const handleToken = token => async dispatch => {
       body: JSON.stringify(token)
     });
     const userProfile = await res.json();
-    if (userProfile.error) {
-      throw new Error();
-    }
-    dispatch({ type: FETCH_USER, payload: userProfile });
+    dispatch({ type: FETCH_TOKEN, payload: userProfile });
   } catch (err) {
     console.error(err);
   }
 };
 
-export const submitSurvey = (values, history) => async dispatch => {
+export const fetchSurveys = () => async (dispatch, getState) => {
+  if (getIsFetching(getState(), 'surveys')) {
+    return Promise.resolve;
+  }
+  dispatch({ type: FETCH_SURVEYS_REQUEST });
+  try {
+    const surveysRes = await makeApiFetchRequest('/api/surveys');
+    const surveys = surveysRes.map(curr => {
+      const { _id: id, _id, ...rest } = curr;
+      return { id, ...rest };
+    });
+    const normalisedSurveys = normalize(surveys, schema.surveyListSchema);
+    dispatch({ type: FETCH_SURVEYS_SUCCESS, payload: normalisedSurveys });
+  } catch (err) {
+    dispatch({
+      type: FETCH_SURVEYS_FAILURE,
+      payload: err
+    });
+  }
+};
+
+export const createSurvey = (values, history) => async dispatch => {
   try {
     const res = await fetch('/api/surveys', {
       method: 'POST',
@@ -93,35 +150,8 @@ export const submitSurvey = (values, history) => async dispatch => {
       body: JSON.stringify(values)
     });
     const userProfile = await res.json();
-    if (userProfile.error) {
-      throw new Error();
-    }
-
-    dispatch({ type: FETCH_USER, payload: userProfile });
+    dispatch({ type: CREATE_SURVEY, payload: userProfile });
     history.push('/dashboard/surveys');
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-export const fetchSurveys = () => async dispatch => {
-  try {
-    const res = await fetch('/api/surveys');
-    var surveys = await res.json();
-    if (surveys.error) {
-      throw new Error(surveys.error);
-    }
-    dispatch({ type: FETCH_SURVEYS, payload: surveys });
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export const fetchRecipients = surveyId => async dispatch => {
-  try {
-    const res = await fetch(`/api/recipients/${surveyId}`);
-    const recipients = await res.json();
-    dispatch({ type: FETCH_RECIPIENTS, payload: recipients });
   } catch (err) {
     console.error(err);
   }
@@ -140,5 +170,28 @@ export const deleteSurvey = surveyId => async dispatch => {
   } catch (err) {
     console.error(err);
     return false;
+  }
+};
+
+export const fetchRecipients = surveyId => async (dispatch, getState) => {
+  if (getIsFetching(getState(), 'recipients')) {
+    return Promise.resolve;
+  }
+  try {
+    dispatch({ type: FETCH_RECIPIENTS_REQUEST });
+    const recipientsRes = await makeApiFetchRequest(
+      `/api/recipients/${surveyId}`
+    );
+    const recipients = recipientsRes.map(curr => {
+      const { _id: id, _id, ...rest } = curr;
+      return { id, ...rest };
+    });
+    const normalisedRecipients = normalize(
+      recipients,
+      schema.recipientListSchema
+    );
+    dispatch({ type: FETCH_RECIPIENTS_SUCCESS, payload: normalisedRecipients });
+  } catch (err) {
+    dispatch({ type: FETCH_RECIPIENTS_FAILURE, payload: err });
   }
 };

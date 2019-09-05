@@ -3,6 +3,7 @@ import { jsx } from '@emotion/core';
 import { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink, Redirect } from 'react-router-dom';
+import { getUser, getIsFetching, getError } from '../reducers';
 import {
   Link as MuiLink,
   Button,
@@ -11,7 +12,7 @@ import {
 } from '@material-ui/core';
 import Logo from './Logo';
 
-const LandingPage = ({ auth }) => {
+const LandingPage = ({ user }) => {
   return (
     <Fragment>
       <div className="img-container"></div>
@@ -113,7 +114,7 @@ const LandingPage = ({ auth }) => {
             </Button>
           </div>
 
-          {auth && <Redirect to="/dashboard/surveys" />}
+          {user && <Redirect to="/dashboard/surveys" />}
         </div>
       </Container>
       <div
@@ -129,7 +130,7 @@ const LandingPage = ({ auth }) => {
       >
         <MuiLink
           component={RouterLink}
-          to={auth ? '/dashboard/surveys' : '/'}
+          to={user ? '/dashboard/surveys' : '/'}
           css={{
             '&&': {
               paddingTop: '0.5rem',
@@ -160,7 +161,13 @@ const LandingPage = ({ auth }) => {
   );
 };
 
+const mapStateToProps = state => ({
+  user: getUser(state),
+  isFetching: getIsFetching(state, 'user'),
+  error: getError(state, 'user')
+});
+
 export default connect(
-  ({ auth }) => ({ auth }),
+  mapStateToProps,
   null
 )(LandingPage);

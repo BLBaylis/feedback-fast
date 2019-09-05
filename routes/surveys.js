@@ -12,11 +12,12 @@ const Survey = mongoose.model('surveys');
 module.exports = (app) => {
   app.get('/api/surveys', requireLogin, async (req, res) => {
     try {
+      throw new Error('bang');
       const surveys = await Survey.find({ _user: req.user.id }).select({ recipients: 0 });
       if (!surveys) {
         return res.status(404).end();
       }
-      res.json(surveys);
+      res.status(200).json(surveys);
     } catch (err) {
       return res.status(500).send(err);
     }

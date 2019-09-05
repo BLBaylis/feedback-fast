@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Button, Typography } from '@material-ui/core';
 import StripePayments from './StripePayments';
+import { getUser, getIsFetching, getError } from '../reducers';
 
 const styles = {
   colorWhite: { color: 'white' },
@@ -13,7 +14,7 @@ const styles = {
   }
 };
 
-const Header = ({ auth }) => {
+const Header = ({ user }) => {
   return (
     <div
       style={{
@@ -23,13 +24,13 @@ const Header = ({ auth }) => {
         alignItems: 'center'
       }}
     >
-      {auth && (
+      {user && (
         <Typography
           style={styles.navLink}
-        >{`Credits: ${auth.credits}`}</Typography>
+        >{`Credits: ${user.credits}`}</Typography>
       )}
-      {auth && <StripePayments style={styles.navLink} />}
-      {/*auth && (
+      {user && <StripePayments style={styles.navLink} />}
+      {/*user && (
         <Button
           variant="outlined"
           component={'a'}
@@ -43,4 +44,15 @@ const Header = ({ auth }) => {
   );
 };
 
-export default withRouter(connect(({ auth }) => ({ auth }))(Header));
+const mapStateToProps = state => ({
+  user: getUser(state),
+  isFetching: getIsFetching(state, 'user'),
+  error: getError(state, 'user')
+});
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    null
+  )(Header)
+);

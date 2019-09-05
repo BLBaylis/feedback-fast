@@ -1,4 +1,7 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { fetchSurveys } from '../../actions';
+import { getSurveyById } from '../../reducers';
 import {
   Card,
   Button,
@@ -33,7 +36,8 @@ const totalTally = {
   color: '#3f51b5'
 };
 
-const SurveyCard = ({ _id: id, title, dateSent, yes, no }) => {
+const SurveyCard = ({ id, survey }) => {
+  const { title, dateSent, yes, no } = survey;
   return (
     <Card
       key={`${title}${dateSent}card${id}`}
@@ -101,4 +105,11 @@ const SurveyCard = ({ _id: id, title, dateSent, yes, no }) => {
   );
 };
 
-export default SurveyCard;
+const mapStateToProps = (state, { id }) => ({
+  survey: getSurveyById(state, id)
+});
+
+export default connect(
+  mapStateToProps,
+  { fetchSurveys }
+)(SurveyCard);

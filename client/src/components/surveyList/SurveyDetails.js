@@ -12,6 +12,7 @@ import {
   Button
 } from '@material-ui/core';
 import { fetchSurveys, deleteSurvey } from '../../actions';
+import { getSurveyById } from '../../reducers';
 import DeleteDialog from './DeleteDialog';
 import ExpansionLessPanel from '../ExpansionlessPanel';
 import RecipientsList from './RecipientsList';
@@ -211,7 +212,7 @@ class SurveyDetails extends Component {
           <h1>Deletion unsuccessful. Try again later!</h1>
         )}
         {showRecipientsList && (
-          <RecipientsList surveyId={survey._id}></RecipientsList>
+          <RecipientsList surveyId={survey.id}></RecipientsList>
         )}
         {deleted && (
           <Fragment>
@@ -226,20 +227,9 @@ class SurveyDetails extends Component {
   }
 }
 
-const mapStateToProps = ({ surveys }, ownProps) => {
-  if (!surveys.length) {
-    return { survey: null };
-  }
-  const survey = surveys.find(
-    survey => survey._id === ownProps.match.params.id
-  );
-  if (!survey) {
-    return { survey: false };
-  }
-  return {
-    survey
-  };
-};
+const mapStateToProps = (state, ownProps) => ({
+  survey: getSurveyById(state, ownProps.match.params.id)
+});
 
 const StyledSurveyDetails = withStyles(materialStyles)(SurveyDetails);
 
