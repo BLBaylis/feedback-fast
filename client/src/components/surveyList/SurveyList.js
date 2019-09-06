@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { Fab, Grid, Typography, Container } from '@material-ui/core';
@@ -6,7 +6,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { fetchSurveys } from '../../actions';
 import { getSurveys, getIsFetching, getError } from '../../reducers';
 import SurveyCard from './SurveyCard';
-import ErrorBoundary from '../ErrorBoundary';
+import CenteredStatusIndicator from '../CenteredStatusIndicator';
 
 class SurveyList extends Component {
   componentDidMount() {
@@ -14,6 +14,7 @@ class SurveyList extends Component {
   }
 
   createSurveys = () => {
+    console.log(this.props.surveys);
     return this.props.surveys.reverse().map(survey => {
       const { id } = survey;
       return (
@@ -25,39 +26,44 @@ class SurveyList extends Component {
   };
 
   render() {
-    const { isFetching, surveys, error } = this.props;
-    if (error.status) {
-      throw new Error(error.status);
-    }
-    if (isFetching && !surveys.length) {
-      return <h1>Loading...</h1>;
-    }
+    let { isFetching, error, surveys } = this.props;
     return (
-      <Container>
-        <RouterLink to="/dashboard/surveys/new">
-          <Fab
-            color="primary"
-            aria-label="new survey"
-            size="large"
-            style={{ position: 'fixed', bottom: '20px', right: '20px' }}
-          >
-            <AddIcon />
-          </Fab>
-        </RouterLink>
-
-        <Typography
-          gutterBottom
-          variant="h4"
-          component="h1"
-          text="primary"
-          style={{ textAlign: 'center', margin: '1.5rem auto' }}
-        >
-          Surveys
-        </Typography>
-        <Grid container spacing={3} style={{ marginBottom: '12px' }}>
-          {this.createSurveys()}
-        </Grid>
-      </Container>
+      <Fragment>
+        {
+          <CenteredStatusIndicator>
+            {isFetching ? 'Loading your surveys...' : null}
+            {error.status && !surveys.length ? 'Something went wrong!' : null}
+          </CenteredStatusIndicator>
+        }
+        <Container>
+          <RouterLink to="/dashboard/surveys/new">
+            <Fab
+              color="primary"
+              aria-label="new survey"
+              size="large"
+              style={{ position: 'fixed', bottom: '20px', right: '20px' }}
+            >
+              <AddIcon />
+            </Fab>
+          </RouterLink>
+          {!isFetching && surveys.length && (
+            <Fragment>
+              <Typography
+                gutterBottom
+                variant="h4"
+                component="h1"
+                text="primary"
+                style={{ textAlign: 'center', margin: '1.5rem auto' }}
+              >
+                Surveys
+              </Typography>
+              <Grid container spacing={3} style={{ marginBottom: '12px' }}>
+                {!isFetching && this.createSurveys()}
+              </Grid>
+            </Fragment>
+          )}
+        </Container>
+      </Fragment>
     );
   }
 }

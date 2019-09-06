@@ -16,6 +16,8 @@ import { getSurveyById } from '../../reducers';
 import DeleteDialog from './DeleteDialog';
 import ExpansionLessPanel from '../ExpansionlessPanel';
 import RecipientsList from './RecipientsList';
+import { getIsFetching, getError } from '../../reducers';
+import CenteredStatusIndicator from '../CenteredStatusIndicator';
 
 const styles = {
   heading: {
@@ -28,7 +30,8 @@ const styles = {
     maxWidth: '66.66%'
   },
   title: {
-    margin: '1.5rem auto'
+    padding: '1.5rem 0',
+    margin: '0 auto'
   }
 };
 
@@ -42,8 +45,7 @@ class SurveyDetails extends Component {
   state = {
     expandedPanel: false,
     showRecipientsList: false,
-    deleteAttempted: false,
-    deleted: false
+    deleteAttempted: false
   };
 
   componentDidMount() {
@@ -51,11 +53,8 @@ class SurveyDetails extends Component {
   }
 
   handleDelete = surveyId => async () => {
-    const deleteWasSuccessful = await this.props.deleteSurvey(surveyId);
-    if (!deleteWasSuccessful) {
-      return this.setState({ deleteAttempted: true });
-    }
-    this.setState({ deleteAttempted: true, deleted: true });
+    this.props.deleteSurvey(surveyId);
+    this.setState({ deleteAttempted: true });
   };
 
   handlePanelClick = panel => () => {
@@ -71,14 +70,14 @@ class SurveyDetails extends Component {
   };
 
   render() {
-    const { survey, classes } = this.props;
     const {
-      expandedPanel,
-      deleted,
-      deleteAttempted,
-      showRecipientsList
-    } = this.state;
-
+      survey,
+      classes,
+      isFetchingRecipients,
+      isFetchingSurveys,
+      error
+    } = this.props;
+    const { expandedPanel, deleteAttempted, showRecipientsList } = this.state;
     if (survey) {
       var {
         yes,
@@ -97,7 +96,7 @@ class SurveyDetails extends Component {
     }
     return (
       <Container>
-        {survey && !deleted && (
+        {survey && !deleteAttempted && !isFetchingSurveys && (
           <div>
             <Typography
               style={styles.title}
@@ -192,7 +191,7 @@ class SurveyDetails extends Component {
             <ExpansionLessPanel name="Total" value={yes + no} />
 
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              {!this.state.showRecipientsList && (
+              {!showRecipientsList && (
                 <Button
                   style={{ margin: '15px 0 15px 15px' }}
                   variant="outlined"
@@ -201,26 +200,30 @@ class SurveyDetails extends Component {
                   Get recipients
                 </Button>
               )}
-              <DeleteDialog handleDelete={this.handleDelete(survey._id)} />
+              <DeleteDialog handleDelete={this.handleDelete(survey.id)} />
             </div>
           </div>
         )}
-
-        {survey === null && <h1>Fetching survey...</h1>}
-        {survey === false && <h1>Invalid survey ID</h1>}
-        {deleteAttempted && !deleted && (
-          <h1>Deletion unsuccessful. Try again later!</h1>
-        )}
-        {showRecipientsList && (
-          <RecipientsList surveyId={survey.id}></RecipientsList>
-        )}
-        {deleted && (
-          <Fragment>
-            <h1>Survey deleted</h1>
-            <Button component={RouterLink} to="/dashboard/surveys">
-              Back to Surveys
-            </Button>
-          </Fragment>
+        {showRecipientsList && <RecipientsList surveyId={survey.id} />}
+        <CenteredStatusIndicator>
+          {isFetchingSurveys ? 'Loading Survey Details' : null}
+          {!deleteAttempted && !survey && !isFetchingSurveys
+            ? 'Unable to find survey'
+            : null}
+          {!deleteAttempted && error.status && !survey
+            ? 'Something went wrong!'
+            : null}
+          {deleteAttempted && error.status
+            ? 'Deletion unsuccessful. Try again later!'
+            : null}
+          {deleteAttempted && !survey && !error.status
+            ? 'Survey deleted'
+            : null}
+        </CenteredStatusIndicator>
+        {!isFetchingSurveys && (deleteAttempted || error.status || !survey) && (
+          <Button component={RouterLink} to="/dashboard/surveys">
+            Back to Surveys
+          </Button>
         )}
       </Container>
     );
@@ -228,7 +231,10 @@ class SurveyDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  survey: getSurveyById(state, ownProps.match.params.id)
+  survey: getSurveyById(state, ownProps.match.params.id),
+  isFetchingSurveys: getIsFetching(state, 'surveys'),
+  isFetchingRecipients: getIsFetching(state, 'recipients'),
+  error: getError(state, 'surveys')
 });
 
 const StyledSurveyDetails = withStyles(materialStyles)(SurveyDetails);

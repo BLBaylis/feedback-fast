@@ -30,7 +30,7 @@ const Header = ({ user }) => {
         >{`Credits: ${user.credits}`}</Typography>
       )}
       {user && <StripePayments style={styles.navLink} />}
-      {/*user && (
+      {user && (
         <Button
           variant="outlined"
           component={'a'}
@@ -39,7 +39,7 @@ const Header = ({ user }) => {
         >
           Log Out
         </Button>
-      )*/}
+      )}
     </div>
   );
 };

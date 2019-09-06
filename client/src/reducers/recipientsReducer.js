@@ -2,40 +2,30 @@ import { combineReducers } from 'redux';
 import {
   FETCH_RECIPIENTS_REQUEST,
   FETCH_RECIPIENTS_SUCCESS,
-  FETCH_RECIPIENTS_FAILURE
+  FETCH_RECIPIENTS_FAILURE,
+  FETCH_SURVEYS_REQUEST
 } from '../actions/constants';
 
-const error = (state = {}, { type, payload }) => {
+const error = (state = {}, { type, err }) => {
   switch (type) {
     case FETCH_RECIPIENTS_FAILURE:
-      return payload;
+      return err;
+    case FETCH_SURVEYS_REQUEST:
     case FETCH_RECIPIENTS_SUCCESS:
-    case FETCH_RECIPIENTS_REQUEST:
+      return {};
     default:
       return state;
   }
 };
 
-export const byId = (state = {}, action) => {
-  switch (action.type) {
-    case FETCH_RECIPIENTS_SUCCESS:
-      return action.payload.entities.recipients;
-    default:
-      return state;
-  }
-};
+export const byId = (state = {}, { recipients }) =>
+  recipients ? recipients.entities.recipients : state;
 
-export const allIds = (state = [], action) => {
-  switch (action.type) {
-    case FETCH_RECIPIENTS_SUCCESS:
-      return action.payload.result;
-    default:
-      return state;
-  }
-};
+export const allIds = (state = [], { recipients }) =>
+  recipients ? recipients.result : state;
 
-const isFetching = (state = false, action) => {
-  switch (action.type) {
+const isFetching = (state = false, { type }) => {
+  switch (type) {
     case FETCH_RECIPIENTS_REQUEST:
       return true;
     case FETCH_RECIPIENTS_SUCCESS:

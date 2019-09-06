@@ -15,7 +15,10 @@ class DeleteDialog extends Component {
 
   handleOpen = () => this.setState({ open: true });
 
-  handleClose = () => this.setState({ open: false });
+  handleClose = () => {
+    this.props.handleDelete();
+    this.setState({ open: false });
+  };
 
   render() {
     const open = this.state.open;

@@ -3,36 +3,54 @@ import {
   FETCH_SURVEYS_REQUEST,
   FETCH_SURVEYS_SUCCESS,
   FETCH_SURVEYS_FAILURE,
-  DELETE_SURVEY
+  CREATE_SURVEY_REQUEST,
+  CREATE_SURVEY_SUCCESS,
+  CREATE_SURVEY_FAILURE,
+  DELETE_SURVEY_REQUEST,
+  DELETE_SURVEY_SUCCESS,
+  DELETE_SURVEY_FAILURE
 } from '../actions/constants';
 
-const error = (state = {}, { type, payload }) => {
+const error = (state = {}, { type, err }) => {
   switch (type) {
     case FETCH_SURVEYS_FAILURE:
-      return payload;
-    case FETCH_SURVEYS_SUCCESS:
+    case CREATE_SURVEY_FAILURE:
+    case DELETE_SURVEY_FAILURE:
+      return err;
     case FETCH_SURVEYS_REQUEST:
+    case CREATE_SURVEY_REQUEST:
+    case FETCH_SURVEYS_SUCCESS:
+    case CREATE_SURVEY_SUCCESS:
+    case DELETE_SURVEY_REQUEST:
+    case DELETE_SURVEY_SUCCESS:
+      return {};
     default:
       return state;
   }
 };
 
-const byId = (state = {}, { type, payload }) => {
-  if (type === FETCH_SURVEYS_SUCCESS) {
-    return payload.entities.surveys;
+const byId = (state = {}, { type, surveys }) => {
+  if (type === DELETE_SURVEY_SUCCESS) {
+    const { [surveys.result]: deletedId, ...remainingSurveys } = state;
+    return { ...remainingSurveys };
   }
-  if (type === DELETE_SURVEY) {
-    return state.filter(({ _id }) => _id !== payload);
+  if (surveys) {
+    return {
+      ...state,
+      ...surveys.entities.surveys
+    };
   }
   return state;
 };
 
-const allIds = (state = [], { type, payload }) => {
+const allIds = (state = [], { type, surveys }) => {
   switch (type) {
     case FETCH_SURVEYS_SUCCESS:
-      return payload.result;
-    case DELETE_SURVEY:
-      return state.filter(({ _id }) => _id !== payload);
+      return surveys.result;
+    case CREATE_SURVEY_SUCCESS:
+      return [...state, surveys.result];
+    case DELETE_SURVEY_SUCCESS:
+      return state.filter(id => id !== surveys.result);
     default:
       return state;
   }
@@ -41,9 +59,15 @@ const allIds = (state = [], { type, payload }) => {
 const isFetching = (state = false, { type }) => {
   switch (type) {
     case FETCH_SURVEYS_REQUEST:
+    case CREATE_SURVEY_REQUEST:
+    case DELETE_SURVEY_REQUEST:
       return true;
     case FETCH_SURVEYS_SUCCESS:
     case FETCH_SURVEYS_FAILURE:
+    case CREATE_SURVEY_SUCCESS:
+    case CREATE_SURVEY_FAILURE:
+    case DELETE_SURVEY_SUCCESS:
+    case DELETE_SURVEY_FAILURE:
       return false;
     default:
       return state;

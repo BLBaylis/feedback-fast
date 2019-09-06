@@ -2,15 +2,17 @@ import { combineReducers } from 'redux';
 import userReducer, * as fromUser from './userReducer';
 import surveysReducer, * as fromSurveys from './surveysReducer';
 import recipientsReducer, * as fromRecipients from './recipientsReducer';
+import billingReducer, * as fromBilling from './billingReducer';
 
 export default combineReducers({
   user: userReducer,
   surveys: surveysReducer,
-  recipients: recipientsReducer
+  recipients: recipientsReducer,
+  billing: billingReducer
 });
 
 //generates a function that allows you to get a field shared amongst multiple entity types
-//In this case, an entity will be surveys, recipients or user
+//In this case, an entity will be surveys, recipients, user or billing
 const getFieldForEntityType = fieldName => (state, entityType) => {
   const capitalisedFieldName = fieldName[0].toUpperCase() + fieldName.slice(1);
   const funcName = `get${capitalisedFieldName}`;
@@ -21,6 +23,8 @@ const getFieldForEntityType = fieldName => (state, entityType) => {
       return fromRecipients[funcName](state.recipients);
     case 'user':
       return fromUser[funcName](state.user);
+    case 'billing':
+      return fromBilling[funcName](state.billing);
     default:
       return state;
   }

@@ -12,7 +12,6 @@ const Survey = mongoose.model('surveys');
 module.exports = (app) => {
   app.get('/api/surveys', requireLogin, async (req, res) => {
     try {
-      throw new Error('bang');
       const surveys = await Survey.find({ _user: req.user.id }).select({ recipients: 0 });
       if (!surveys) {
         return res.status(404).end();
@@ -41,19 +40,19 @@ module.exports = (app) => {
     const mailer = new Mailer(survey, emailTemplate(survey));
     try {
       await mailer.send();
-      await survey.save();
+      const newSurvey = await survey.save();
       req.user.credits -= 1;
       const user = await req.user.save();
-      res.status(201).json(user);
+      res.status(201).json({ user, survey: newSurvey });
     } catch (err) {
-      console.error(err);
-      res.status(201).end();
+      res.status(500).send(err);
     }
   });
 
   app.delete('/api/surveys/:surveyId', async (req, res) => {
+    const id = req.params.surveyId;
     try {
-      const deleteOutcome = await Survey.deleteOne({ _id: req.params.surveyId }).exec();
+      const deleteOutcome = await Survey.deleteOne({ _id: id }).exec();
       if (deleteOutcome.deletedCount !== 1) {
         throw new Error('Not deleted');
       }
