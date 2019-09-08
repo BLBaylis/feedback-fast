@@ -9,9 +9,9 @@
   },
   "private": true,
   "scripts": {
-    "server": "nodemon server.js",
+    "start": "nodemon server.js",
     "client": "npm run start --prefix client",
-    "start": "concurrently \"npm run server\" \"npm run client\" \"npm run webhook\"",
+    "start:dev": "concurrently \"npm run server\" \"npm run client\" \"npm run webhook\"",
     "webhook": "ssh -R feedbackfast:80:localhost:5000 serveo.net"
   },
   "repository": {
