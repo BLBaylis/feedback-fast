@@ -1,9 +1,9 @@
 import React from 'react';
 import { v4 } from 'uuid';
+import { Typography } from '@material-ui/core';
 
-const CenteredStatusIndicator = ({ children }) => {
+const CenteredStatusIndicator = ({ children, variant }) => {
   const noStatusToShow = !children.some(child => Boolean(child));
-  console.log(children);
   const headingStyles = {
     position: 'absolute',
     top: '50%',
@@ -27,9 +27,13 @@ const CenteredStatusIndicator = ({ children }) => {
           return null;
         }
         return (
-          <h1 style={headingStyles} key={v4()}>
+          <Typography
+            variant={variant || 'h3'}
+            style={headingStyles}
+            key={v4()}
+          >
             {child}
-          </h1>
+          </Typography>
         );
       })}
     </div>

@@ -1,26 +1,21 @@
-import {
-  FETCH_USER_REQUEST,
-  FETCH_USER_SUCCESS,
-  FETCH_USER_FAILURE,
-  REGISTER_REQUEST,
-  REGISTER_COMPLETE,
-  LOGIN_REQUEST,
-  LOGIN_COMPLETE,
-  CREATE_SURVEY_REQUEST,
-  CREATE_SURVEY_SUCCESS,
-  CREATE_SURVEY_FAILURE
-} from '../actions/constants';
+import * as actionTypes from '../actions/constants';
 import { combineReducers } from 'redux';
 
 const error = (state = {}, { type, err }) => {
   switch (type) {
-    case FETCH_USER_FAILURE:
-    case CREATE_SURVEY_FAILURE:
+    case actionTypes.FETCH_USER_FAILURE:
+    case actionTypes.LOGIN_FAILURE:
+    case actionTypes.REGISTER_FAILURE:
+    case actionTypes.CREATE_SURVEY_FAILURE:
       return err;
-    case FETCH_USER_REQUEST:
-    case FETCH_USER_SUCCESS:
-    case CREATE_SURVEY_REQUEST:
-    case CREATE_SURVEY_SUCCESS:
+    case actionTypes.LOGIN_REQUEST:
+    case actionTypes.LOGIN_SUCCESS:
+    case actionTypes.REGISTER_REQUEST:
+    case actionTypes.REGISTER_SUCCESS:
+    case actionTypes.FETCH_USER_REQUEST:
+    case actionTypes.FETCH_USER_SUCCESS:
+    case actionTypes.CREATE_SURVEY_REQUEST:
+    case actionTypes.CREATE_SURVEY_SUCCESS:
       return {};
     default:
       return state;
@@ -31,17 +26,19 @@ const user = (state = null, { user }) => (user ? user : state);
 
 const isFetching = (state = false, { type }) => {
   switch (type) {
-    case REGISTER_REQUEST:
-    case LOGIN_REQUEST:
-    case FETCH_USER_REQUEST:
-    case CREATE_SURVEY_REQUEST:
+    case actionTypes.REGISTER_REQUEST:
+    case actionTypes.LOGIN_REQUEST:
+    case actionTypes.FETCH_USER_REQUEST:
+    case actionTypes.CREATE_SURVEY_REQUEST:
       return true;
-    case FETCH_USER_SUCCESS:
-    case FETCH_USER_FAILURE:
-    case REGISTER_COMPLETE:
-    case LOGIN_COMPLETE:
-    case CREATE_SURVEY_SUCCESS:
-    case CREATE_SURVEY_FAILURE:
+    case actionTypes.FETCH_USER_SUCCESS:
+    case actionTypes.FETCH_USER_FAILURE:
+    case actionTypes.LOGIN_SUCCESS:
+    case actionTypes.REGISTER_FAILURE:
+    case actionTypes.REGISTER_COMPLETE:
+    case actionTypes.LOGIN_COMPLETE:
+    case actionTypes.CREATE_SURVEY_SUCCESS:
+    case actionTypes.CREATE_SURVEY_FAILURE:
       return false;
     default:
       return state;

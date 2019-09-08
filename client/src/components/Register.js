@@ -16,6 +16,7 @@ import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import { TextField } from 'formik-material-ui';
 import { handleRegister } from '../actions/index';
+import { getError, getIsFetching } from '../reducers';
 
 const styles = {
   paper: {
@@ -66,9 +67,22 @@ const validationSchema = yup.object().shape({
     .oneOf([yup.ref('password'), null], 'Passwords must match.')
 });
 
-const Register = ({ handleRegister, history }) => {
-  const handleSubmit = async (values, { setSubmitting }) => {
+const Register = ({ handleRegister, history, error }) => {
+  const handleSubmit = async (
+    values,
+    { setSubmitting, setErrors, setStatus }
+  ) => {
     await handleRegister(values, history);
+    console.log(error.status);
+    if (error.status) {
+      console.log(error.status);
+      if (error.status === 401) {
+        const message = 'This email is already associated with an account';
+        setErrors({ email: message });
+        setStatus({ email: message });
+      }
+    }
+    setSubmitting(false);
     setSubmitting(false);
   };
 
@@ -190,9 +204,14 @@ const Register = ({ handleRegister, history }) => {
   );
 };
 
+const mapStateToProps = state => ({
+  isFetching: getIsFetching(state, 'user'),
+  error: getError(state, 'user')
+});
+
 export default withRouter(
   connect(
-    null,
+    mapStateToProps,
     { handleRegister }
   )(Register)
 );

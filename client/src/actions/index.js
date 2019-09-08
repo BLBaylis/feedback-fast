@@ -1,30 +1,7 @@
 import { normalize } from 'normalizr';
 import * as schema from './schema';
 import { getIsFetching } from '../reducers';
-import {
-  FETCH_USER_REQUEST,
-  FETCH_USER_SUCCESS,
-  FETCH_USER_FAILURE,
-  FETCH_SURVEYS_REQUEST,
-  FETCH_SURVEYS_SUCCESS,
-  FETCH_SURVEYS_FAILURE,
-  CREATE_SURVEY_REQUEST,
-  CREATE_SURVEY_SUCCESS,
-  CREATE_SURVEY_FAILURE,
-  VERIFY_TOKEN_REQUEST,
-  VERIFY_TOKEN_SUCCESS,
-  VERIFY_TOKEN_FAILURE,
-  FETCH_RECIPIENTS_REQUEST,
-  FETCH_RECIPIENTS_SUCCESS,
-  FETCH_RECIPIENTS_FAILURE,
-  DELETE_SURVEY_REQUEST,
-  DELETE_SURVEY_SUCCESS,
-  DELETE_SURVEY_FAILURE,
-  REGISTER_REQUEST,
-  REGISTER_COMPLETE,
-  LOGIN_REQUEST,
-  LOGIN_COMPLETE
-} from './constants';
+import * as actionTypes from './constants';
 
 const makeApiRequestWithoutBody = async (endpoint, method) => {
   const res = await fetch(endpoint, {
@@ -32,7 +9,7 @@ const makeApiRequestWithoutBody = async (endpoint, method) => {
   });
   if (!res.ok) {
     const { status, statusText } = res;
-    const error = new Error('Network Problem');
+    const error = new Error();
     throw Object.assign(error, {
       status,
       statusText
@@ -52,12 +29,11 @@ const makeApiRequestWithBody = async (endpoint, method, body) => {
   });
   if (!res.ok) {
     const { status, statusText } = res;
-    const error = new Error('Network Problem');
-    Object.assign(error, {
+    const error = new Error();
+    throw Object.assign(error, {
       status,
       statusText
     });
-    throw error;
   }
   return await res.json();
 };
@@ -66,12 +42,12 @@ export const fetchUser = () => async (dispatch, getState) => {
   if (getIsFetching(getState(), 'user')) {
     return Promise.resolve();
   }
-  dispatch({ type: FETCH_USER_REQUEST });
+  dispatch({ type: actionTypes.FETCH_USER_REQUEST });
   try {
     const user = await makeApiRequestWithoutBody('/api/user-info', 'get');
-    dispatch({ type: FETCH_USER_SUCCESS, user });
+    dispatch({ type: actionTypes.FETCH_USER_SUCCESS, user });
   } catch (err) {
-    dispatch({ type: FETCH_USER_FAILURE, err });
+    dispatch({ type: actionTypes.FETCH_USER_FAILURE, err });
   }
 };
 
@@ -82,13 +58,13 @@ export const handleRegister = (values, history) => async (
   if (getIsFetching(getState(), 'user')) {
     return Promise.resolve();
   }
-  dispatch({ type: REGISTER_REQUEST });
+  dispatch({ type: actionTypes.REGISTER_REQUEST });
   try {
     const user = await makeApiRequestWithBody('/api/register', 'post', values);
-    dispatch({ type: REGISTER_COMPLETE, user });
+    dispatch({ type: actionTypes.REGISTER_SUCCESS, user });
     history.push('/dashboard/surveys');
   } catch (err) {
-    console.log(err);
+    dispatch({ type: actionTypes.REGISTER_FAILURE, err });
   }
 };
 
@@ -99,22 +75,22 @@ export const handleLogin = (credentials, history) => async (
   if (getIsFetching(getState(), 'user')) {
     return Promise.resolve();
   }
-  dispatch({ type: LOGIN_REQUEST });
+  dispatch({ type: actionTypes.LOGIN_REQUEST });
   try {
     const user = await makeApiRequestWithBody(
       '/api/login',
       'post',
       credentials
     );
-    dispatch({ type: LOGIN_COMPLETE, user });
+    dispatch({ type: actionTypes.LOGIN_SUCCESS, user });
     history.push('/dashboard/surveys');
   } catch (err) {
-    console.error(err);
+    dispatch({ type: actionTypes.LOGIN_FAILURE, err });
   }
 };
 
 export const handleToken = token => async dispatch => {
-  dispatch({ type: VERIFY_TOKEN_REQUEST });
+  dispatch({ type: actionTypes.VERIFY_TOKEN_REQUEST });
   try {
     //token = { id: 'tok_chargeDeclinedInsufficientFunds' };
     const res = await fetch('/api/stripe', {
@@ -129,9 +105,9 @@ export const handleToken = token => async dispatch => {
       throw await res.json();
     }
     const user = await res.json();
-    dispatch({ type: VERIFY_TOKEN_SUCCESS, user });
+    dispatch({ type: actionTypes.VERIFY_TOKEN_SUCCESS, user });
   } catch (err) {
-    dispatch({ type: VERIFY_TOKEN_FAILURE, err });
+    dispatch({ type: actionTypes.VERIFY_TOKEN_FAILURE, err });
   }
 };
 
@@ -139,7 +115,7 @@ export const fetchSurveys = () => async (dispatch, getState) => {
   if (getIsFetching(getState(), 'surveys')) {
     return Promise.resolve();
   }
-  dispatch({ type: FETCH_SURVEYS_REQUEST });
+  dispatch({ type: actionTypes.FETCH_SURVEYS_REQUEST });
   try {
     const surveysRes = await makeApiRequestWithoutBody('/api/surveys', 'get');
     const surveys = surveysRes.map(curr => {
@@ -147,17 +123,20 @@ export const fetchSurveys = () => async (dispatch, getState) => {
       return { id, ...rest };
     });
     const normalisedSurveys = normalize(surveys, schema.surveyListSchema);
-    dispatch({ type: FETCH_SURVEYS_SUCCESS, surveys: normalisedSurveys });
+    dispatch({
+      type: actionTypes.FETCH_SURVEYS_SUCCESS,
+      surveys: normalisedSurveys
+    });
   } catch (err) {
     dispatch({
-      type: FETCH_SURVEYS_FAILURE,
+      type: actionTypes.FETCH_SURVEYS_FAILURE,
       err
     });
   }
 };
 
 export const createSurvey = (values, history) => async dispatch => {
-  dispatch({ type: CREATE_SURVEY_REQUEST });
+  dispatch({ type: actionTypes.CREATE_SURVEY_REQUEST });
   try {
     const res = await makeApiRequestWithBody('/api/surveys', 'post', values);
     const { user, survey } = res;
@@ -165,18 +144,18 @@ export const createSurvey = (values, history) => async dispatch => {
     const newSurvey = { id, ...rest };
     const normalisedSurvey = normalize(newSurvey, schema.surveySchema);
     dispatch({
-      type: CREATE_SURVEY_SUCCESS,
+      type: actionTypes.CREATE_SURVEY_SUCCESS,
       user,
       surveys: normalisedSurvey
     });
     history.push('/dashboard/surveys');
   } catch (err) {
-    dispatch({ type: CREATE_SURVEY_FAILURE, err });
+    dispatch({ type: actionTypes.CREATE_SURVEY_FAILURE, err });
   }
 };
 
 export const deleteSurvey = surveyId => async dispatch => {
-  dispatch({ type: DELETE_SURVEY_REQUEST });
+  dispatch({ type: actionTypes.DELETE_SURVEY_REQUEST });
   try {
     const res = await fetch(`/api/surveys/${surveyId}`, {
       method: 'delete'
@@ -190,9 +169,12 @@ export const deleteSurvey = surveyId => async dispatch => {
       });
       throw error;
     }
-    dispatch({ type: DELETE_SURVEY_SUCCESS, surveys: { result: surveyId } });
+    dispatch({
+      type: actionTypes.DELETE_SURVEY_SUCCESS,
+      surveys: { result: surveyId }
+    });
   } catch (err) {
-    dispatch({ type: DELETE_SURVEY_FAILURE, err });
+    dispatch({ type: actionTypes.DELETE_SURVEY_FAILURE, err });
   }
 };
 
@@ -200,7 +182,7 @@ export const fetchRecipients = surveyId => async (dispatch, getState) => {
   if (getIsFetching(getState(), 'recipients')) {
     return Promise.resolve();
   }
-  dispatch({ type: FETCH_RECIPIENTS_REQUEST });
+  dispatch({ type: actionTypes.FETCH_RECIPIENTS_REQUEST });
   try {
     const recipientsRes = await makeApiRequestWithoutBody(
       `/api/recipients/${surveyId}`,
@@ -215,10 +197,10 @@ export const fetchRecipients = surveyId => async (dispatch, getState) => {
       schema.recipientListSchema
     );
     dispatch({
-      type: FETCH_RECIPIENTS_SUCCESS,
+      type: actionTypes.FETCH_RECIPIENTS_SUCCESS,
       recipients: normalisedRecipients
     });
   } catch (err) {
-    dispatch({ type: FETCH_RECIPIENTS_FAILURE, err });
+    dispatch({ type: actionTypes.FETCH_RECIPIENTS_FAILURE, err });
   }
 };

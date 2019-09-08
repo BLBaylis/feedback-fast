@@ -30,6 +30,15 @@ authRoutes(app);
 billingRoutes(app);
 surveyRoutes(app);
 recipientsRoutes(app);
+
+app.use((err, req, res, next) => {
+  if (err.message === 'There is already an account associated with this email.') {
+    res.status(409).send(err);
+  } else {
+    next();
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT);

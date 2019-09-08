@@ -4,10 +4,11 @@ import { connect } from 'react-redux';
 import SurveyCreator from './surveyCreator/SurveyCreator';
 import SurveyDetails from './surveyList/SurveyDetails';
 import SurveyList from './surveyList/SurveyList';
+import FailedPaymentDialog from './FailedPaymentDialog';
 import Header from './Header';
 import { getIsFetching, getError } from '../reducers';
 
-const Dashboard = ({ billing }) => {
+const Dashboard = ({ isFetching, error }) => {
   return (
     <Fragment>
       <Header />
@@ -23,6 +24,7 @@ const Dashboard = ({ billing }) => {
           <Route path="/dashboard/surveys/:id" component={SurveyDetails} />
         </Switch>
       </div>
+      {!isFetching && error.code && <FailedPaymentDialog error={error} />}
     </Fragment>
   );
 };

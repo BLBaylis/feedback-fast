@@ -14,7 +14,6 @@ class SurveyList extends Component {
   }
 
   createSurveys = () => {
-    console.log(this.props.surveys);
     return this.props.surveys.reverse().map(survey => {
       const { id } = survey;
       return (
@@ -46,17 +45,31 @@ class SurveyList extends Component {
               <AddIcon />
             </Fab>
           </RouterLink>
-          {!isFetching && surveys.length && (
+          {!isFetching && (
             <Fragment>
               <Typography
                 gutterBottom
                 variant="h4"
                 component="h1"
                 text="primary"
-                style={{ textAlign: 'center', margin: '1.5rem auto' }}
+                style={{
+                  textAlign: 'center',
+                  margin: '0 auto',
+                  paddingBottom: '1.5rem'
+                }}
               >
                 Surveys
               </Typography>
+              {!isFetching && surveys.length === 0 && (
+                <Typography
+                  variant="h6"
+                  style={{ maxWidth: '500px', margin: '0 auto' }}
+                >
+                  You don't seem to have launched any surveys yet! Make sure you
+                  have some credits, then click the button on the bottom right
+                  to get started.
+                </Typography>
+              )}
               <Grid container spacing={3} style={{ marginBottom: '12px' }}>
                 {!isFetching && this.createSurveys()}
               </Grid>

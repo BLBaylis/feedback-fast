@@ -16,6 +16,7 @@ import {
 
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { handleLogin } from '../actions/index';
+import { getError, getIsFetching } from '../reducers';
 
 const styles = {
   paper: {
@@ -49,8 +50,11 @@ const validationSchema = yup.object().shape({
   password: yup.string()
 });
 
-const Login = ({ handleLogin, history }) => {
-  const handleSubmit = async (values, { setSubmitting }) => {
+const Login = ({ handleLogin, history, error }) => {
+  const handleSubmit = async (
+    values,
+    { setSubmitting, setStatus, setErrors }
+  ) => {
     const { email, password } = values;
     await handleLogin(
       {
@@ -59,6 +63,15 @@ const Login = ({ handleLogin, history }) => {
       },
       history
     );
+    if (error.status) {
+      if (error.status === 401) {
+        var message = 'Incorrect email or password';
+      } else {
+        message = 'Something went wrong! Please try again';
+      }
+      setErrors({ email: message, password: message });
+      setStatus({ email: message, password: message });
+    }
     setSubmitting(false);
   };
 
@@ -146,9 +159,14 @@ const Login = ({ handleLogin, history }) => {
   );
 };
 
+const mapStateToProps = state => ({
+  isFetching: getIsFetching(state, 'user'),
+  error: getError(state, 'user')
+});
+
 export default withRouter(
   connect(
-    null,
+    mapStateToProps,
     { handleLogin }
   )(Login)
 );

@@ -12,6 +12,7 @@ import {
   useMediaQuery
 } from '@material-ui/core';
 
+import CenteredStatusIndicator from '../CenteredStatusIndicator';
 import { getRecipients, getIsFetching, getError } from '../../reducers';
 import { fetchRecipients } from '../../actions';
 
@@ -19,7 +20,8 @@ const RecipientsList = ({
   surveyId,
   fetchRecipients,
   recipients,
-  isFetching
+  isFetching,
+  error
 }) => {
   const [currPage, setCurrPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -80,8 +82,22 @@ const RecipientsList = ({
   const numOfPages = Math.ceil(recipients.length / itemsPerPage) || 1;
   const Wrapper = isMobile ? 'div' : Paper;
   return (
-    <Wrapper style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-      {isFetching && <h1>Loading...</h1>}
+    <Wrapper
+      style={{
+        padding: '1.5rem',
+        marginBottom: '1.5rem',
+        position: 'relative'
+      }}
+    >
+      <CenteredStatusIndicator variant="h5">
+        {isFetching ? 'Loading Recipient Details...' : null}
+        {!error.status && !recipients.length && !isFetching
+          ? 'Unable to find survey'
+          : null}
+        {error.status && !recipients.length && !isFetching
+          ? 'Something went wrong!'
+          : null}
+      </CenteredStatusIndicator>
       {!isFetching && recipients.length && (
         <Fragment>
           <div

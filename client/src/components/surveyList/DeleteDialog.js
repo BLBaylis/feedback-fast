@@ -15,8 +15,10 @@ class DeleteDialog extends Component {
 
   handleOpen = () => this.setState({ open: true });
 
-  handleClose = () => {
-    this.props.handleDelete();
+  handleClose = shouldDelete => {
+    if (shouldDelete === true) {
+      this.props.handleDelete();
+    }
     this.setState({ open: false });
   };
 
@@ -49,19 +51,21 @@ class DeleteDialog extends Component {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleClose} autoFocus>
-              Back
-            </Button>
-            <Button
-              style={{
-                backgroundColor: 'red',
-                color: '#fff'
-              }}
-              variant="contained"
-              onClick={this.handleClose}
-            >
-              Delete
-            </Button>
+            <div style={{ padding: '8px 16px' }}>
+              <Button onClick={() => this.handleClose(false)} autoFocus>
+                Back
+              </Button>
+              <Button
+                style={{
+                  backgroundColor: 'red',
+                  color: '#fff'
+                }}
+                variant="contained"
+                onClick={() => this.handleClose(true)}
+              >
+                Delete
+              </Button>
+            </div>
           </DialogActions>
         </Dialog>
       </div>

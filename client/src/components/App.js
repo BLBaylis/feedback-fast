@@ -11,7 +11,9 @@ import PrivateRoute from './PrivateRoute';
 
 class App extends Component {
   componentWillMount() {
-    this.props.fetchUser();
+    if (!this.props.user) {
+      this.props.fetchUser();
+    }
   }
 
   render() {

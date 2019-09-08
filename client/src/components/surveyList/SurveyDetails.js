@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { withStyles } from '@material-ui/styles';
@@ -70,13 +70,7 @@ class SurveyDetails extends Component {
   };
 
   render() {
-    const {
-      survey,
-      classes,
-      isFetchingRecipients,
-      isFetchingSurveys,
-      error
-    } = this.props;
+    const { survey, classes, isFetchingSurveys, error } = this.props;
     const { expandedPanel, deleteAttempted, showRecipientsList } = this.state;
     if (survey) {
       var {
@@ -206,7 +200,7 @@ class SurveyDetails extends Component {
         )}
         {showRecipientsList && <RecipientsList surveyId={survey.id} />}
         <CenteredStatusIndicator>
-          {isFetchingSurveys ? 'Loading Survey Details' : null}
+          {isFetchingSurveys ? 'Loading Survey Details...' : null}
           {!deleteAttempted && !survey && !isFetchingSurveys
             ? 'Unable to find survey'
             : null}
@@ -233,7 +227,6 @@ class SurveyDetails extends Component {
 const mapStateToProps = (state, ownProps) => ({
   survey: getSurveyById(state, ownProps.match.params.id),
   isFetchingSurveys: getIsFetching(state, 'surveys'),
-  isFetchingRecipients: getIsFetching(state, 'recipients'),
   error: getError(state, 'surveys')
 });
 

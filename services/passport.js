@@ -12,7 +12,17 @@ passport.serializeUser((userProfile, done) => {
 });
 
 passport.deserializeUser((recordID, done) => {
-  User.findById(recordID).then(userProfile => done(null, userProfile));
+  User.findById(recordID)
+    .then((userProfile) => {
+      const { credits, email, _id: id } = userProfile;
+      return {
+        credits,
+        id,
+        email,
+      };
+    })
+    .then(userProfile => done(null, userProfile))
+    .catch(err => done(err));
 });
 
 passport.use(
@@ -24,6 +34,7 @@ passport.use(
     },
     (accessToken, refreshToken, googleUserProfile, done) => {
       User.findOne({ googleID: googleUserProfile.id })
+        .select({ credits: 1, _id: 1, email: 1 })
         .then((existingDBUserProfile) => {
           if (existingDBUserProfile) {
             done(null, existingDBUserProfile);
@@ -31,10 +42,18 @@ passport.use(
             // eslint-disable-next-line no-underscore-dangle
             new User({ googleID: googleUserProfile.id, email: googleUserProfile._json.email })
               .save()
-              .then(newDBUserProfile => done(null, newDBUserProfile));
+              .then((newDBUserProfile) => {
+                const { credits, email, _id: id } = newDBUserProfile;
+                const newUserProfile = {
+                  credits,
+                  id,
+                  email,
+                };
+                done(null, newUserProfile);
+              });
           }
         })
-        .catch(console.error);
+        .catch(err => done(err));
     },
   ),
 );
@@ -48,9 +67,7 @@ passport.use(
       try {
         const existingUserProfile = await User.findOne({ email });
         if (existingUserProfile) {
-          return done(null, false, {
-            message: 'There is already an account associated with this email.',
-          });
+          return done(new Error('There is already an account associated with this email.'));
         }
         const hash = await User.hashPassword(password);
         const newUserProfileWithPwd = await new User({
