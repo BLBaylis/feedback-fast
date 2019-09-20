@@ -13,8 +13,7 @@
     "client": "npm run start --prefix client",
     "start:dev": "concurrently \"npm run server\" \"npm run client\" \"npm run webhook\"",
     "webhook": "ssh -R feedbackfast:80:localhost:5000 serveo.net",
-    "build-test": "$env:NODE_ENV=production npm run build --prefix client",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client"
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "repository": {
     "type": "git",
@@ -48,6 +47,7 @@
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.0",
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2"
