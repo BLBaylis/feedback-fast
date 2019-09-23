@@ -26,7 +26,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', (req, res) => res.send('Howdy!'));
 authRoutes(app);
 billingRoutes(app);
 surveyRoutes(app);
