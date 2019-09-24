@@ -10,8 +10,9 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
+    "server:dev": "nodemon server.js",
     "client": "npm run start --prefix client",
-    "start:dev": "concurrently \"npm run server\" \"npm run client\" \"npm run webhook\"",
+    "start:dev": "concurrently \"npm run server:dev\" \"npm run client\" \"npm run webhook\"",
     "webhook": "ssh -R feedbackfast:80:localhost:5000 serveo.net",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
