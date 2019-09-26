@@ -47,7 +47,6 @@ passport.use(
   new LocalStrategy(
     { usernameField: 'email', passwordField: 'password' },
     async (email, password, done) => {
-      let newUserProfile;
       try {
         const existingUserProfile = await User.findOne({ email });
         if (existingUserProfile) {
@@ -60,12 +59,13 @@ passport.use(
           email,
           password: hash,
         }).save();
-        const { credits, _id } = newUserProfileWithPwd;
-        newUserProfile = { email, credits, id: _id };
+        const { _id } = newUserProfileWithPwd;
+        const newUserProfile = await User.findOne({ _id }).select({ _id: 1, credits: 1, email: 1 });
+        console.log(newUserProfile);
+        return done(null, newUserProfile);
       } catch (err) {
         return done(err);
       }
-      return done(null, newUserProfile);
     },
   ),
 );
@@ -93,7 +93,7 @@ passport.use(
           email: 1,
           credits: 1,
         });
-        done(null, formattedUserProfile);
+        return done(null, formattedUserProfile);
       } catch (err) {
         return done(err);
       }
