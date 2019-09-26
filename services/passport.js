@@ -7,20 +7,13 @@ const keys = require('../config/keys');
 const User = mongoose.model('users');
 
 passport.serializeUser((userProfile, done) => {
-  const { id: recordID } = userProfile;
+  const { _id: recordID } = userProfile;
   done(null, recordID);
 });
 
 passport.deserializeUser((recordID, done) => {
   User.findById(recordID)
-    .then((userProfile) => {
-      const { credits, email, _id: id } = userProfile;
-      return {
-        credits,
-        id,
-        email,
-      };
-    })
+    .select({ _id: 1, email: 1, credits: 1 })
     .then(userProfile => done(null, userProfile))
     .catch(err => done(err));
 });
@@ -34,7 +27,6 @@ passport.use(
     },
     (accessToken, refreshToken, googleUserProfile, done) => {
       User.findOne({ googleID: googleUserProfile.id })
-        .select({ credits: 1, _id: 1, email: 1 })
         .then((existingDBUserProfile) => {
           if (existingDBUserProfile) {
             done(null, existingDBUserProfile);
@@ -42,18 +34,10 @@ passport.use(
             // eslint-disable-next-line no-underscore-dangle
             new User({ googleID: googleUserProfile.id, email: googleUserProfile._json.email })
               .save()
-              .then((newDBUserProfile) => {
-                const { credits, email, _id: id } = newDBUserProfile;
-                const newUserProfile = {
-                  credits,
-                  id,
-                  email,
-                };
-                done(null, newUserProfile);
-              });
+              .then(newDBUserProfile => done(null, newDBUserProfile));
           }
         })
-        .catch(err => done(err));
+        .catch(console.error);
     },
   ),
 );
@@ -67,7 +51,9 @@ passport.use(
       try {
         const existingUserProfile = await User.findOne({ email });
         if (existingUserProfile) {
-          return done(new Error('There is already an account associated with this email.'));
+          return done(null, false, {
+            message: 'There is already an account associated with this email.',
+          });
         }
         const hash = await User.hashPassword(password);
         const newUserProfileWithPwd = await new User({
@@ -92,7 +78,6 @@ passport.use(
       const invalidCredentialsDone = () => done(null, false, {
         message: 'Incorrect email or password.',
       });
-      let userProfile;
       try {
         const existingUserProfile = await User.findOne({ email });
         if (!existingUserProfile) {
@@ -102,16 +87,16 @@ passport.use(
         if (!outcome) {
           return invalidCredentialsDone();
         }
-        const { credits, _id } = existingUserProfile;
-        userProfile = {
-          email,
-          credits,
-          id: _id,
-        };
+        const { _id } = existingUserProfile;
+        const formattedUserProfile = await User.findOne({ _id }).select({
+          _id: 1,
+          email: 1,
+          credits: 1,
+        });
+        done(null, formattedUserProfile);
       } catch (err) {
         return done(err);
       }
-      return done(null, userProfile);
     },
   ),
 );
