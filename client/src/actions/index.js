@@ -18,7 +18,7 @@ const makeApiRequestWithoutBody = async (endpoint, method) => {
   return await res.json();
 };
 
-const makeApiRequestWithBody = async (endpoint, method, body) => {
+export const makeApiRequestWithBody = async (endpoint, method, body) => {
   const res = await fetch(endpoint, {
     method,
     headers: {
@@ -48,44 +48,6 @@ export const fetchUser = () => async (dispatch, getState) => {
     dispatch({ type: actionTypes.FETCH_USER_SUCCESS, user });
   } catch (err) {
     dispatch({ type: actionTypes.FETCH_USER_FAILURE, err });
-  }
-};
-
-export const handleRegister = (values, history) => async (
-  dispatch,
-  getState
-) => {
-  if (getIsFetching(getState(), 'user')) {
-    return Promise.resolve();
-  }
-  dispatch({ type: actionTypes.REGISTER_REQUEST });
-  try {
-    const user = await makeApiRequestWithBody('/api/register', 'post', values);
-    dispatch({ type: actionTypes.REGISTER_SUCCESS, user });
-    history.push('/dashboard/surveys');
-  } catch (err) {
-    dispatch({ type: actionTypes.REGISTER_FAILURE, err });
-  }
-};
-
-export const handleLogin = (credentials, history) => async (
-  dispatch,
-  getState
-) => {
-  if (getIsFetching(getState(), 'user')) {
-    return Promise.resolve();
-  }
-  dispatch({ type: actionTypes.LOGIN_REQUEST });
-  try {
-    const user = await makeApiRequestWithBody(
-      '/api/login',
-      'post',
-      credentials
-    );
-    dispatch({ type: actionTypes.LOGIN_SUCCESS, user });
-    history.push('/dashboard/surveys');
-  } catch (err) {
-    dispatch({ type: actionTypes.LOGIN_FAILURE, err });
   }
 };
 

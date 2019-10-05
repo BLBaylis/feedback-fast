@@ -10,7 +10,11 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
+<<<<<<< HEAD
     "server:dev": "nodemon server.js",
+=======
+    "server": "nodemon server.js",
+>>>>>>> 8ed4c6fcc6ebf81a6b5a98755ef6fe0bd3dca217
     "client": "npm run start --prefix client",
     "start:dev": "concurrently \"npm run server:dev\" \"npm run client\" \"npm run webhook\"",
     "webhook": "ssh -R feedbackfast:80:localhost:5000 serveo.net",

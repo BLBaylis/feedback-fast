@@ -15,7 +15,7 @@ import {
 } from '@material-ui/core';
 
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { handleLogin } from '../actions/index';
+import { fetchUser, makeApiRequestWithBody } from '../actions/index';
 import { getError, getIsFetching } from '../reducers';
 
 const styles = {
@@ -50,22 +50,21 @@ const validationSchema = yup.object().shape({
   password: yup.string()
 });
 
-const Login = ({ handleLogin, history, error }) => {
+const Login = ({ fetchUser, history }) => {
   const handleSubmit = async (
     values,
     { setSubmitting, setStatus, setErrors }
   ) => {
-    const { email, password } = values;
-    await handleLogin(
-      {
-        email,
-        password
-      },
-      history
-    );
-    if (error.status) {
+    setSubmitting(true);
+    try {
+      await makeApiRequestWithBody('/api/login', 'post', values);
+      await fetchUser();
+      history.push('/dashboard/surveys');
+    } catch (error) {
       if (error.status === 401) {
         var message = 'Incorrect email or password';
+      } else if (error.status === 422) {
+        history.push('/dashboard/surveys');
       } else {
         message = 'Something went wrong! Please try again';
       }
@@ -167,6 +166,6 @@ const mapStateToProps = state => ({
 export default withRouter(
   connect(
     mapStateToProps,
-    { handleLogin }
+    { fetchUser }
   )(Login)
 );

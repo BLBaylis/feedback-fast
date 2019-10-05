@@ -12,12 +12,18 @@ module.exports = (app) => {
         source: req.body.id,
         description: '5 credits for £5',
       });
+    } catch (err) {
+      console.log(err);
+      const newErr = new Error('Stripe Error');
+      res.status(err.statusCode).send(Object.assign(newErr, err));
+    }
+    try {
       req.user.credits += 5;
       const user = await req.user.save();
       res.status(200).json(user);
     } catch (err) {
-      const newErr = new Error('Stripe Error');
-      res.status(err.statusCode).send(Object.assign(newErr, err));
+      console.log(err);
+      res.status(500).json(err);
     }
   });
 };

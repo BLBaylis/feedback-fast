@@ -15,7 +15,7 @@ import googleIcon from '../assets/google-icon.svg';
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import { TextField } from 'formik-material-ui';
-import { handleRegister } from '../actions/index';
+import { fetchUser, makeApiRequestWithBody } from '../actions';
 import { getError, getIsFetching } from '../reducers';
 
 const styles = {
@@ -67,22 +67,26 @@ const validationSchema = yup.object().shape({
     .oneOf([yup.ref('password'), null], 'Passwords must match.')
 });
 
-const Register = ({ handleRegister, history, error }) => {
+const Register = ({ fetchUser, history, error }) => {
   const handleSubmit = async (
     values,
     { setSubmitting, setErrors, setStatus }
   ) => {
-    await handleRegister(values, history);
-    console.log(error.status);
-    if (error.status) {
-      console.log(error.status);
+    try {
+      await makeApiRequestWithBody('/api/register', 'post', values);
+      await fetchUser();
+      history.push('/dashboard/surveys');
+    } catch (error) {
       if (error.status === 401) {
-        const message = 'This email is already associated with an account';
-        setErrors({ email: message });
-        setStatus({ email: message });
+        var message = 'Incorrect email or password';
+      } else if (error.status === 422) {
+        history.push('/dashboard/surveys');
+      } else {
+        message = 'Something went wrong! Please try again';
       }
+      setErrors({ email: message, password: message });
+      setStatus({ email: message, password: message });
     }
-    setSubmitting(false);
     setSubmitting(false);
   };
 
@@ -212,6 +216,6 @@ const mapStateToProps = state => ({
 export default withRouter(
   connect(
     mapStateToProps,
-    { handleRegister }
+    { fetchUser }
   )(Register)
 );
