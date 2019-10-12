@@ -45,6 +45,7 @@ module.exports = (app) => {
       const user = await req.user.save();
       res.status(201).json({ user, survey: newSurvey });
     } catch (err) {
+      console.log(err)
       res.status(500).send(err);
     }
   });
