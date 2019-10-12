@@ -25,15 +25,9 @@ module.exports = (app) => {
   app.get('/api/surveys/:surveyId/:response', (req, res) => res.send('Thanks for your feedback!'));
 
   app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
-    console.log('Reached route');
     const {
       title, recipients, subject, body,
     } = req.body;
-    console.log(`title : ${title}`);
-    console.log(`recipients : ${recipients}`);
-    console.log(`subject : ${subject}`);
-    console.log(`body : ${body}`);
-    console.log(`req.user.id : ${req.user.id}`);
     const survey = new Survey({
       title,
       subject,
@@ -43,20 +37,15 @@ module.exports = (app) => {
       dateSent: Date.now(),
       lastResponded: null,
     });
-    console.log(survey);
     const mailer = new Mailer(survey, emailTemplate(survey));
-    console.log(`mailer : ${mailer}`);
     try {
       await mailer.send();
-      console.log('mailer sent');
       const newSurvey = await survey.save();
-      console.log('survey saved');
       req.user.credits -= 1;
       const user = await req.user.save();
-      console.log('user saved');
       res.status(201).json({ user, survey: newSurvey });
     } catch (err) {
-      console.log('err in catch: ', err);
+      console.log(err)
       res.status(500).send(err);
     }
   });
@@ -76,9 +65,7 @@ module.exports = (app) => {
 
   app.post('/api/surveys/webhook', (req) => {
     const clickEvents = req.body.filter(event => event.event === 'click');
-    console.log(`clickEvents : ${clickEvents}`);
     const path = new Path('/api/surveys/:surveyId/:response');
-    console.log(`path : ${path}`);
     const eventsData = clickEvents.map(({ email, url }) => {
       const isPathValid = path.test(new URL(url).pathname);
       if (isPathValid && email) {
@@ -91,11 +78,8 @@ module.exports = (app) => {
       }
       return undefined;
     });
-    console.log(`eventsData : ${eventsData}`);
     const validEventsData = eventsData.filter(curr => !!curr);
-    console.log(`validEventsData : ${validEventsData}`);
     const uniqueEventsData = validEventsData.length > 1 ? uniqueByEmailAndSurveyId(validEventsData) : validEventsData;
-    console.log(`uniqueEventsData : ${uniqueEventsData}`);
     uniqueEventsData.forEach(({ email, surveyId, response }) => {
       Survey.updateOne(
         {
@@ -111,6 +95,5 @@ module.exports = (app) => {
         },
       ).exec();
     });
-    console.log('end of route');
   });
 };
