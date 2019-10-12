@@ -45,14 +45,18 @@ module.exports = (app) => {
     });
     console.log(survey);
     const mailer = new Mailer(survey, emailTemplate(survey));
+    console.log(`mailer : ${mailer}`);
     try {
       await mailer.send();
+      console.log('mailer sent');
       const newSurvey = await survey.save();
+      console.log('survey saved');
       req.user.credits -= 1;
       const user = await req.user.save();
+      console.log('user saved');
       res.status(201).json({ user, survey: newSurvey });
     } catch (err) {
-      console.log(err);
+      console.log('err in catch: ', err);
       res.status(500).send(err);
     }
   });
