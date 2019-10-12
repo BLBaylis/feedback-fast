@@ -29,6 +29,11 @@ module.exports = (app) => {
     const {
       title, recipients, subject, body,
     } = req.body;
+    console.log(`title : ${title}`);
+    console.log(`recipients : ${recipients}`);
+    console.log(`subject : ${subject}`);
+    console.log(`body : ${body}`);
+    console.log(`req.user.id : ${req.user.id}`);
     const survey = new Survey({
       title,
       subject,
@@ -38,6 +43,7 @@ module.exports = (app) => {
       dateSent: Date.now(),
       lastResponded: null,
     });
+    console.log(survey);
     const mailer = new Mailer(survey, emailTemplate(survey));
     try {
       await mailer.send();
