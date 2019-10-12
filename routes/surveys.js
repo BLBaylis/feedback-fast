@@ -25,6 +25,7 @@ module.exports = (app) => {
   app.get('/api/surveys/:surveyId/:response', (req, res) => res.send('Thanks for your feedback!'));
 
   app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
+    console.log('Reached route');
     const {
       title, recipients, subject, body,
     } = req.body;
@@ -45,7 +46,7 @@ module.exports = (app) => {
       const user = await req.user.save();
       res.status(201).json({ user, survey: newSurvey });
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.status(500).send(err);
     }
   });

@@ -112,6 +112,7 @@ export const createSurvey = (values, history) => async dispatch => {
     });
     history.push('/dashboard/surveys');
   } catch (err) {
+    console.log(err)
     dispatch({ type: actionTypes.CREATE_SURVEY_FAILURE, err });
   }
 };
