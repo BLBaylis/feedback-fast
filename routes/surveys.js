@@ -76,7 +76,9 @@ module.exports = (app) => {
 
   app.post('/api/surveys/webhook', (req) => {
     const clickEvents = req.body.filter(event => event.event === 'click');
+    console.log(`clickEvents : ${clickEvents}`);
     const path = new Path('/api/surveys/:surveyId/:response');
+    console.log(`path : ${path}`);
     const eventsData = clickEvents.map(({ email, url }) => {
       const isPathValid = path.test(new URL(url).pathname);
       if (isPathValid && email) {
@@ -89,8 +91,11 @@ module.exports = (app) => {
       }
       return undefined;
     });
+    console.log(`eventsData : ${eventsData}`);
     const validEventsData = eventsData.filter(curr => !!curr);
+    console.log(`validEventsData : ${validEventsData}`);
     const uniqueEventsData = validEventsData.length > 1 ? uniqueByEmailAndSurveyId(validEventsData) : validEventsData;
+    console.log(`uniqueEventsData : ${uniqueEventsData}`);
     uniqueEventsData.forEach(({ email, surveyId, response }) => {
       Survey.updateOne(
         {
@@ -106,5 +111,6 @@ module.exports = (app) => {
         },
       ).exec();
     });
+    console.log('end of route');
   });
 };
